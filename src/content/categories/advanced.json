@@ -1,0 +1,10 @@
+{
+  "name": "Bazaar Advanced",
+  "slug": "advanced",
+  "kind": "course",
+  "short": "Advanced",
+  "tagline": "Derivatives, risk and tax: the parts that cost people money.",
+  "description": "How futures and options really work in India, position sizing that keeps you in the game, and the capital gains rules that decide what you keep.",
+  "image": "/images/sections/advanced.jpg",
+  "order": 3
+}

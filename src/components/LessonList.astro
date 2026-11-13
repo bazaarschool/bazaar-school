@@ -1,0 +1,30 @@
+---
+// The "register": an ordered list of lessons drawn like a ruled exercise-book page.
+import type { Post } from '../lib/sections';
+import { pad2, fmtDate } from '../lib/format';
+interface Props {
+  posts: Post[];
+  level?: string;          // section slug, for colour
+  compact?: boolean;       // hide excerpts (home, sidebars)
+  size?: 'compact' | 'default' | 'lg';
+  currentId?: string;      // highlight the lesson being read
+  numbered?: boolean;      // false for feeds (dates instead of lesson numbers)
+}
+const { posts, level = '', compact = false, size = 'default', currentId = '', numbered = true } = Astro.props;
+const cls = 'register' + (size === 'compact' || compact ? ' register--compact' : '') + (size === 'lg' ? ' register--lg' : '');
+---
+<ol class={cls} data-level={level || undefined}>
+  {posts.map((p, i) => {
+    const n = numbered ? (p.data.lesson ?? i + 1) : i + 1;
+    return (
+      <li class={'register__row' + (p.id === currentId ? ' is-current' : '')}>
+        <span class="register__num" aria-label={numbered ? `Lesson ${n}` : undefined}>{pad2(n)}</span>
+        <div class="register__main">
+          <a class="register__title" href={`/${p.id}/`} aria-current={p.id === currentId ? 'page' : undefined}>{p.data.title}</a>
+          {!compact && <p class="register__excerpt">{p.data.excerpt}</p>}
+        </div>
+        <span class="register__meta">{numbered ? p.data.readTime : fmtDate(p.data.date)}</span>
+      </li>
+    );
+  })}
+</ol>

@@ -1,0 +1,74 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Syllabus from '../components/Syllabus.astro';
+import ProgressMeter from '../components/ProgressMeter.astro';
+import LevelBadge from '../components/LevelBadge.astro';
+import StoryCard from '../components/StoryCard.astro';
+import { getLevels, getSections, orderFeed, sectionHref } from '../lib/sections';
+
+const levels = await getLevels();
+const sections = await getSections();
+const all = await getCollection('blog');
+const feedPosts = sections
+  .filter((s) => s.kind === 'feed')
+  .flatMap((s) => orderFeed(all, s).map((p) => ({ p, s })))
+  .sort((x, y) => y.p.data.date.getTime() - x.p.data.date.getTime())
+  .slice(0, 3);
+const live = levels.reduce((n, l) => n + l.chapters.length, 0);
+const planned = levels.reduce((n, l) => n + l.planned, 0);
+const allIds = levels.flatMap((l) => l.chapters.map((c) => c.post.id));
+const first = levels[0]?.chapters[0];
+---
+<Base title="Curriculum" description="Every Bazaar School chapter in the order we teach it: Basics, Intermediate and Advanced, split into short modules, for the Indian stock market." active="Curriculum">
+  <section class="sec-hero">
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><span aria-current="page">Curriculum</span></nav>
+      <div class="sec-hero__row">
+        <div>
+          <p class="eyebrow">The whole path</p>
+          <h1>The full curriculum</h1>
+          <p class="sec-hero__tag">Every chapter in the order we would teach it if you sat with us for a term.</p>
+          <p class="sec-hero__desc">{live} chapters are live and {planned} more are planned across {levels.length} levels. Mark a chapter as done at its end and your progress shows up here. Progress is saved in this browser only, so there is no account to create.</p>
+        </div>
+        <div class="sec-hero__facts">
+          <ProgressMeter ids={allIds} />
+          {first && <a class="btn btn--ink" href={`/${first.post.id}/`} data-continue="all" data-done-label="Everything live is done">Start with chapter {first.num}</a>}
+          <button type="button" class="btn btn--ghost btn--sm" data-progress-reset>Reset my progress</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    {levels.map((l) => (
+      <section class="curr__level" data-level={l.section.slug} id={l.section.slug} aria-labelledby={`curr-${l.section.slug}`}>
+        <div class="curr__head">
+          <div>
+            <LevelBadge slug={l.section.slug} label={`Level ${l.index}`} />
+            <h2 id={`curr-${l.section.slug}`}><a href={sectionHref(l.section)}>{l.section.name}</a></h2>
+            <p>{l.section.tagline}</p>
+          </div>
+          {l.chapters.length > 0 && <ProgressMeter ids={l.chapters.map((c) => c.post.id)} level={l.section.slug} />}
+        </div>
+        <div class="sec-body--wide"><Syllabus level={l} heading="h3" /></div>
+      </section>
+    ))}
+
+    {feedPosts.length > 0 && (
+      <section class="curr__level">
+        <div class="curr__head">
+          <div>
+            <p class="eyebrow">Also on Bazaar School</p>
+            <h2>Stories and AI</h2>
+            <p>Not part of the path, but worth your time between chapters.</p>
+          </div>
+          <a class="section-head__more" href="/latest/">All articles &rarr;</a>
+        </div>
+        <div class="cards">
+          {feedPosts.map(({ p, s }) => <StoryCard post={p} section={s} />)}
+        </div>
+      </section>
+    )}
+  </div>
+</Base>

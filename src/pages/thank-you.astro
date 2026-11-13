@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { getSections, sectionHref } from '../lib/sections';
+const firstCourse = (await getSections()).find((s) => s.kind === 'course');
+---
+<Base title="You are on the list" description="Thanks for subscribing to the Monday lesson from Bazaar School." noindex={true}>
+  <div class="center-page">
+    <p class="eyebrow">Subscribed</p>
+    <h1>See you on Monday.</h1>
+    <p>The next lesson lands in your inbox on Monday morning. Until then, there is no reason to wait.</p>
+    <div class="hero__actions" style="justify-content:center">
+      {firstCourse && <a class="btn btn--ink" href={sectionHref(firstCourse)}>Start with the Basics</a>}
+      <a class="btn btn--ghost" href="/">Back to home</a>
+    </div>
+  </div>
+</Base>

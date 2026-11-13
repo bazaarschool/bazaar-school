@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "bazaarschool-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["astro", "dev", "--port", "4323"],
+      "port": 4323
+    },
+    {
+      "name": "bazaarschool",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "dist", "-p", "4324", "--no-clipboard"],
+      "port": 4324
+    }
+  ]
+}

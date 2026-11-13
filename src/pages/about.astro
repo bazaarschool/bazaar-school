@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPage } from '../lib/pages';
+import { getSections, sectionHref } from '../lib/sections';
+const { data, Content } = await getPage('about');
+const firstCourse = (await getSections()).find((s) => s.kind === 'course');
+---
+<Base title={data.title} description={data.description} active="About">
+  <section class="about-hero">
+    {data.heroEyebrow && <p class="eyebrow">{data.heroEyebrow}</p>}
+    <h1>{data.heading} {data.headingAccent && <span>{data.headingAccent}</span>}</h1>
+    {data.intro && <p>{data.intro}</p>}
+    <div class="hero__actions">
+      {firstCourse && <a href={sectionHref(firstCourse)} class="btn btn--ink">Start with the Basics</a>}
+      <a href="/curriculum/" class="btn btn--ghost">See the curriculum</a>
+    </div>
+  </section>
+  <div class="page" style="padding-top:8px">
+    <div class="prose"><Content /></div>
+  </div>
+</Base>

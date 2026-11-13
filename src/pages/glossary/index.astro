@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getTerms, letterOf, type Term } from '../../lib/glossary';
+
+const terms = await getTerms();
+const groups = new Map<string, Term[]>();
+for (const t of terms) {
+  const L = letterOf(t.title);
+  if (!groups.has(L)) groups.set(L, []);
+  groups.get(L)!.push(t);
+}
+const letters = Array.from(groups.keys());
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTermSet',
+  name: 'Bazaar School glossary',
+  url: new URL('/glossary/', Astro.site).href,
+  hasDefinedTerm: terms.map((t) => ({ '@type': 'DefinedTerm', name: t.title, description: t.short, url: new URL(`/glossary/${t.id}/`, Astro.site).href })),
+};
+---
+<Base title="Glossary" description="Indian stock market terms explained in two minutes each, from demat accounts to P/E ratios and capital gains, with a worked example in rupees." active="Glossary" jsonLd={jsonLd}>
+  <section class="sec-hero">
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><span aria-current="page">Glossary</span></nav>
+      <div class="sec-hero__row">
+        <div>
+          <p class="eyebrow">Two-minute concepts</p>
+          <h1>Glossary</h1>
+          <p class="sec-hero__tag">Every market word we use, one idea per card, with a worked example in rupees.</p>
+          <p class="sec-hero__desc">Cards you have opened get a tick, so you can see what you have covered. In the chapters, a word with a dotted underline opens its card here.</p>
+        </div>
+        <div class="sec-hero__facts"><span class="sec-hero__fact" data-gloss-progress>{terms.length} terms, about two minutes each</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container sec-body">
+    <div class="gloss-tools">
+      <input type="search" class="gloss-search" placeholder="Filter terms, for example P/E or demat" aria-label="Filter glossary terms" data-gloss-filter />
+    </div>
+    <nav class="gloss-letters" aria-label="Jump to a letter">
+      {letters.map((L) => <a href={`#letter-${L}`}>{L}</a>)}
+    </nav>
+    {letters.map((L) => (
+      <section class="gloss-group" id={`letter-${L}`} aria-label={`Terms starting with ${L}`}>
+        <h2>{L}</h2>
+        <div class="gloss-grid">
+          {groups.get(L)!.map((t) => (
+            <a class="gloss-card" href={`/glossary/${t.id}/`} data-gloss-term={t.id} data-search={[t.title, ...t.aliases, t.short].join(' ').toLowerCase()}>
+              <strong>{t.title}</strong>
+              <span>{t.short}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+    <p class="gloss-empty" data-gloss-empty hidden>No term matches that yet. Try a shorter word.</p>
+  </div>
+</Base>

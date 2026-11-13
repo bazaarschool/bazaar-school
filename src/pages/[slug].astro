@@ -1,0 +1,264 @@
+---
+// One chapter (course levels) or article (Stories, AI): /<slug>/
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import LessonList from '../components/LessonList.astro';
+import Syllabus from '../components/Syllabus.astro';
+import ChapterEnd from '../components/ChapterEnd.astro';
+import StoryCard from '../components/StoryCard.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import PartnerBox from '../components/PartnerBox.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { fmtDate } from '../lib/format';
+import { SITE } from '../data/site';
+import { ICON } from '../lib/icons';
+import { img } from '../lib/img';
+import { getAuthorMap } from '../lib/authors';
+import { getSections, getPlacement, orderFeed, sectionHref } from '../lib/sections';
+import { getTerms, linkGlossary } from '../lib/glossary';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog')).filter((p) => !p.data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const a = post.data;
+const { Content } = await render(post);
+
+const sections = await getSections();
+const section = sections.find((s) => s.name === a.category);
+const placement = await getPlacement(post.id);
+const all = await getCollection('blog');
+
+// Course chapters: neighbours by chapter number; after the last chapter of a
+// level, point at the first chapter of the next level.
+const ch = placement?.chapter;
+const level = placement?.level;
+const prevCh = placement?.prev;
+const nextCh = placement?.next;
+const nextLevelFirst = ch && !nextCh ? placement?.nextLevel?.chapters[0] : undefined;
+const moduleSteps = ch && level ? level.chapters.filter((c) => c.module.id === ch.module.id) : [];
+
+// Feed articles: neighbours by date.
+const feed = !ch && section ? orderFeed(all, section) : [];
+const fIdx = feed.findIndex((p) => p.id === post.id);
+const newer = fIdx > 0 ? feed[fIdx - 1] : undefined;
+const older = fIdx >= 0 ? feed[fIdx + 1] : undefined;
+
+// First mention of each glossary term becomes a link to its card.
+const terms = await getTerms();
+const html = post.rendered?.html;
+const bodyHtml = html && !html.includes('__ASTRO_IMAGE_')
+  ? linkGlossary(html, terms, { skip: terms.filter((t) => t.lesson === post.id).map((t) => t.id) })
+  : null;
+
+const authorInfo = (await getAuthorMap())[a.author];
+const authorBio = authorInfo?.bio || a.authorBio || `Part of the ${SITE.name} editorial team.`;
+const authorRole = authorInfo?.role || '';
+const authorPhoto = authorInfo?.photo;
+const authorInitials = a.author.split(' ').map((s) => s[0]).join('').slice(0, 2).toUpperCase();
+
+const live = all.filter((p) => !p.data.draft && p.id !== post.id).sort((x, y) => y.data.date.getTime() - x.data.date.getTime());
+const more = [...live.filter((p) => p.data.category === a.category), ...live.filter((p) => p.data.category !== a.category)].slice(0, 3);
+const byName = new Map(sections.map((s) => [s.name, s]));
+
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const shareUrl = encodeURIComponent(pageUrl);
+const shareText = encodeURIComponent(a.title);
+const isTeam = /team|editorial|staff/i.test(a.author);
+
+const next = nextCh
+  ? { href: `/${nextCh.post.id}/`, label: `Next, chapter ${nextCh.num}`, title: nextCh.post.data.title }
+  : nextLevelFirst && placement?.nextLevel
+    ? { href: `/${nextLevelFirst.post.id}/`, label: `Start ${placement.nextLevel.section.name}`, title: nextLevelFirst.post.data.title }
+    : undefined;
+
+const jsonLd: object[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: a.title,
+    description: a.excerpt,
+    image: new URL(a.imageWide || a.image, Astro.site).href,
+    datePublished: a.date.toISOString(),
+    dateModified: (a.updated || a.date).toISOString(),
+    author: { '@type': isTeam ? 'Organization' : 'Person', name: a.author },
+    publisher: { '@type': 'Organization', name: SITE.name, logo: { '@type': 'ImageObject', url: new URL('/apple-touch-icon.png', Astro.site).href } },
+    mainEntityOfPage: pageUrl,
+    articleSection: a.category,
+    inLanguage: 'en-IN',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: Astro.site?.href },
+      ...(section ? [{ '@type': 'ListItem', position: 2, name: section.name, item: new URL(sectionHref(section), Astro.site).href }] : []),
+      { '@type': 'ListItem', position: section ? 3 : 2, name: a.title, item: pageUrl },
+    ],
+  },
+];
+---
+<Base title={a.metaTitle || a.title} description={a.metaDescription || a.excerpt} image={a.imageWide || a.image} type="article" active={section?.name} level={section?.slug} jsonLd={jsonLd}>
+  <article class="post" data-level={section?.slug}>
+    <header class="container post__head">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span>/</span>
+        {section ? <a href={sectionHref(section)}>{section.name}</a> : <span>{a.category}</span>}
+        {ch && <><span>/</span><span aria-current="page">Chapter {ch.num}</span></>}
+      </nav>
+      {ch && section && (
+        <a class="eyebrow eyebrow--lv" href={`${sectionHref(section)}#${ch.module.id}`} style="margin-top:16px">Module {ch.module.index} &middot; {ch.module.title}</a>
+      )}
+      <h1 class="post__title">{a.title}</h1>
+      <p class="post__deck">{a.excerpt}</p>
+      <div class="post__meta">
+        <span>By <strong>{a.author}</strong></span>
+        <span class="dot" aria-hidden="true">&middot;</span>
+        <time datetime={a.date.toISOString()}>{fmtDate(a.date)}</time>
+        <span class="dot" aria-hidden="true">&middot;</span>
+        <span>{a.readTime} read</span>
+        {a.updated && <><span class="dot" aria-hidden="true">&middot;</span><span>Updated {fmtDate(a.updated)}</span></>}
+      </div>
+      {ch && level && moduleSteps.length > 0 && (
+        <div class="progress">
+          <span class="progress__label">Chapter {ch.num} &middot; {level.section.short}</span>
+          <ol class="progress__steps" aria-label={`Chapters in module ${ch.module.index}`}>
+            {moduleSteps.map((c) => (
+              <li class={c.post.id === post.id ? 'is-current' : ''} data-chapter={c.post.id}>
+                <a href={`/${c.post.id}/`} title={`Chapter ${c.num}: ${c.post.data.title}`} aria-label={`Chapter ${c.num}: ${c.post.data.title}`}></a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </header>
+
+    <figure class="container post__cover">
+      <img src={img(a.imageWide || a.image, 1600)} alt="" width="1600" height="700" loading="eager" fetchpriority="high" />
+    </figure>
+
+    <div class="container post__shell">
+      <div>
+        {bodyHtml ? <div class="post__body prose" set:html={bodyHtml} /> : <div class="post__body prose"><Content /></div>}
+
+        <div class="post__foot">
+          {ch && level && (
+            <ChapterEnd
+              postId={post.id}
+              outcomes={a.outcomes}
+              quiz={a.quiz}
+              moduleIds={ch.module.liveIds}
+              moduleLabel={`Module ${ch.module.index}: ${ch.module.title}`}
+              levelIds={level.chapters.map((c) => c.post.id)}
+              levelName={level.section.name}
+              next={next}
+            />
+          )}
+
+          <AdSlot label="Advertisement" />
+          <Disclaimer />
+
+          <div class="share-row">
+            <span class="share-row__label">Share this {ch ? 'chapter' : 'story'}</span>
+            <div class="share-row__btns">
+              <a class="share-btn" href={`https://x.com/intent/tweet?url=${shareUrl}&text=${shareText}`} target="_blank" rel="noopener" aria-label="Share on X" set:html={ICON.x}></a>
+              <a class="share-btn" href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`} target="_blank" rel="noopener" aria-label="Share on Facebook" set:html={ICON.fb}></a>
+              <a class="share-btn" href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`} target="_blank" rel="noopener" aria-label="Share on LinkedIn" set:html={ICON.in}></a>
+              <a class="share-btn" href={`https://api.whatsapp.com/send?text=${shareText}%20${shareUrl}`} target="_blank" rel="noopener" aria-label="Share on WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.91-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35M12.05 21.78h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.82 9.82 0 0 1-1.51-5.25c0-5.44 4.43-9.86 9.88-9.86 2.64 0 5.12 1.03 6.98 2.9a9.8 9.8 0 0 1 2.89 6.97c0 5.44-4.43 9.87-9.86 9.87m8.4-18.27A11.8 11.8 0 0 0 12.05 0C5.5 0 .16 5.33.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.9 11.9 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.33 11.89-11.89 0-3.18-1.24-6.16-3.49-8.4"/></svg>
+              </a>
+              <button class="share-btn share-btn--copy js-copy-link" type="button" aria-label="Copy link" title="Copy link" set:html={ICON.link}></button>
+            </div>
+          </div>
+
+          {ch ? (
+            (prevCh || nextCh || nextLevelFirst) && (
+              <nav class="pager" aria-label="Chapter navigation">
+                {prevCh && (
+                  <a href={`/${prevCh.post.id}/`}>
+                    <span class="pager__dir">&larr; Chapter {prevCh.num}</span>
+                    <span class="pager__title">{prevCh.post.data.title}</span>
+                  </a>
+                )}
+                {nextCh && (
+                  <a class="pager--next" href={`/${nextCh.post.id}/`}>
+                    <span class="pager__dir">Chapter {nextCh.num} &rarr;</span>
+                    <span class="pager__title">{nextCh.post.data.title}</span>
+                  </a>
+                )}
+                {nextLevelFirst && placement?.nextLevel && (
+                  <a class="pager--next" href={`/${nextLevelFirst.post.id}/`} data-level={placement.nextLevel.section.slug}>
+                    <span class="pager__dir">Next level &middot; {placement.nextLevel.section.short} &rarr;</span>
+                    <span class="pager__title">{nextLevelFirst.post.data.title}</span>
+                  </a>
+                )}
+              </nav>
+            )
+          ) : (
+            (newer || older) && (
+              <nav class="pager" aria-label="More in this section">
+                {newer && (
+                  <a href={`/${newer.id}/`}>
+                    <span class="pager__dir">&larr; Newer</span>
+                    <span class="pager__title">{newer.data.title}</span>
+                  </a>
+                )}
+                {older && (
+                  <a class="pager--next" href={`/${older.id}/`}>
+                    <span class="pager__dir">Older &rarr;</span>
+                    <span class="pager__title">{older.data.title}</span>
+                  </a>
+                )}
+              </nav>
+            )
+          )}
+
+          <div class="author-card">
+            {authorPhoto ? (
+              <img class="author-avatar" src={img(authorPhoto, 160)} alt={a.author} width="56" height="56" loading="lazy" />
+            ) : (
+              <div class="author-avatar author-avatar--initials" aria-hidden="true">{authorInitials}</div>
+            )}
+            <div class="author-info">
+              <h4>{a.author}</h4>
+              {authorRole && <span class="author-role">{authorRole}</span>}
+              <p>{authorBio}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="post__aside">
+        {level ? (
+          <div>
+            <p class="aside__title">In {level.section.name}</p>
+            <Syllabus level={level} compact planned={false} currentId={post.id} heading="p" />
+          </div>
+        ) : section && feed.length > 1 ? (
+          <div>
+            <p class="aside__title">More {section.name}</p>
+            <LessonList posts={feed.filter((p) => p.id !== post.id).slice(0, 5)} level={section.slug} compact numbered={false} />
+          </div>
+        ) : null}
+        <PartnerBox />
+      </aside>
+    </div>
+
+    {more.length > 0 && (
+      <section class="container related" data-level={section?.slug}>
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Keep reading</p>
+            <h2 class="section-head__title">{ch ? 'Also on Bazaar School' : 'More to read'}</h2>
+          </div>
+          <a class="section-head__more" href="/latest/">All articles &rarr;</a>
+        </div>
+        <div class="cards">
+          {more.map((p) => <StoryCard post={p} section={byName.get(p.data.category)} />)}
+        </div>
+      </section>
+    )}
+  </article>
+</Base>

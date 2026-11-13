@@ -1,0 +1,5 @@
+---
+interface Props { slug: string; label: string; solid?: boolean; }
+const { slug, label, solid = false } = Astro.props;
+---
+<span class={'badge' + (solid ? ' badge--solid' : '')} data-level={slug}>{label}</span>

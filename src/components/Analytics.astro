@@ -1,0 +1,23 @@
+---
+import { ANALYTICS } from '../data/site';
+const gaId = ANALYTICS.gaId;
+---
+{gaId && (
+  <script is:inline define:vars={{ gaId }}>
+    window.__gaId = gaId;
+    window.loadGA = function () {
+      if (window.__gaLoaded) return;
+      window.__gaLoaded = true;
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + window.__gaId;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', window.__gaId, { anonymize_ip: true });
+    };
+    // The cookie-consent script decides WHEN to call loadGA (only if the visitor allowed analytics).
+  </script>
+)}

@@ -1,0 +1,134 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Syllabus from '../components/Syllabus.astro';
+import ProgressMeter from '../components/ProgressMeter.astro';
+import LevelBadge from '../components/LevelBadge.astro';
+import StoryCard from '../components/StoryCard.astro';
+import { SITE } from '../data/site';
+import { getSections, getLevels, orderFeed, sectionHref } from '../lib/sections';
+import { getTerms } from '../lib/glossary';
+
+const sections = await getSections();
+const levels = await getLevels();
+const all = await getCollection('blog');
+const feeds = sections.filter((s) => s.kind === 'feed').map((s) => ({ s, posts: orderFeed(all, s) }));
+const terms = await getTerms();
+
+const firstLevel = levels[0];
+const firstChapter = firstLevel?.chapters[0];
+const live = levels.reduce((n, l) => n + l.chapters.length, 0);
+const planned = levels.reduce((n, l) => n + l.planned, 0);
+const allIds = levels.flatMap((l) => l.chapters.map((c) => c.post.id));
+const notebook = firstLevel && firstLevel.modules.length ? { ...firstLevel, modules: [firstLevel.modules[0]] } : undefined;
+
+// A fixed, beginner-first sample of glossary terms for the home page strip.
+const pick = ['share', 'demat-account', 'nifty-50', 'market-capitalisation', 'pe-ratio', 'dividend', 'stop-loss', 'long-term-capital-gain'];
+const sample = [...pick.map((id) => terms.find((t) => t.id === id)).filter((t) => !!t), ...terms.filter((t) => !pick.includes(t.id))].slice(0, 8);
+
+const jsonLd = [
+  { '@context': 'https://schema.org', '@type': 'Organization', name: SITE.name, url: Astro.site?.href, logo: new URL('/apple-touch-icon.png', Astro.site).href },
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: Astro.site?.href },
+];
+---
+<Base title={SITE.name} active="Home" jsonLd={jsonLd}>
+  <section class="hero">
+    <div class="container hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow eyebrow--chalk">A free school for the Indian stock market</p>
+        <h1 class="hero__title">Learn the stock market <span>in order.</span></h1>
+        <p class="hero__deck">
+          Most people learn investing backwards: tips first, basics never. Here every chapter is numbered and
+          short enough to finish in one sitting. Three levels take you from what a share is to how options and
+          taxes work, with a self-check at the end of each chapter.
+        </p>
+        <div class="hero__actions">
+          {firstChapter && (
+            <a class="btn btn--primary" href={`/${firstChapter.post.id}/`} data-continue="all" data-done-href="/curriculum/" data-done-label="Everything live is done">Start chapter {firstChapter.num}</a>
+          )}
+          <a class="btn btn--chalk" href="/start/">Not sure where to begin?</a>
+        </div>
+        <div style="margin-top:22px;max-width:420px"><ProgressMeter ids={allIds} hideEmpty /></div>
+        <p class="hero__note">{live} chapters live &middot; {planned} more on the way &middot; no sign-up &middot; no tips, ever</p>
+      </div>
+
+      {notebook && (
+        <aside class="hero__card" aria-label={`${firstLevel.section.name}: first module`}>
+          <div class="notebook" data-level={firstLevel.section.slug}>
+            <div class="notebook__head">
+              <LevelBadge slug={firstLevel.section.slug} label={firstLevel.section.name} />
+              <span class="notebook__count">Level 1</span>
+            </div>
+            <Syllabus level={notebook} compact heading="p" />
+            <a class="notebook__more" href={sectionHref(firstLevel.section)}>All {firstLevel.section.short} modules &rarr;</a>
+          </div>
+        </aside>
+      )}
+    </div>
+  </section>
+
+  <section class="section section--after-hero container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">The path</p>
+        <h2 class="section-head__title">Three levels, one order.</h2>
+        <p class="section-head__sub">Each level is a set of short modules. Finish a chapter, take the self-check, mark it done, and watch the bar fill.</p>
+      </div>
+      <a class="section-head__more" href="/curriculum/">Full curriculum &rarr;</a>
+    </div>
+    <div class="path__grid">
+      {levels.map((l) => (
+        <article class="path__col" data-level={l.section.slug}>
+          <span class="path__step">Level {l.index}</span>
+          <h3><a href={sectionHref(l.section)}>{l.section.name}</a></h3>
+          <p class="path__tag">{l.section.tagline}</p>
+          <ol class="path__mods">
+            {l.modules.map((m) => (
+              <li>
+                <b>{m.index}</b>
+                <div>
+                  <a href={`${sectionHref(l.section)}#${m.id}`}>{m.title}</a>
+                  <small>{m.liveIds.length} live{m.rows.length > m.liveIds.length ? ` · ${m.rows.length - m.liveIds.length} coming` : ''}</small>
+                </div>
+              </li>
+            ))}
+          </ol>
+          {l.chapters.length > 0 && <ProgressMeter ids={l.chapters.map((c) => c.post.id)} level={l.section.slug} />}
+          <a class="path__more" href={sectionHref(l.section)}>Open {l.section.short} &rarr;</a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  {sample.length > 0 && (
+    <section class="section container">
+      <div class="gloss-band">
+        <div>
+          <p class="eyebrow">Two-minute concepts</p>
+          <h2>The glossary</h2>
+          <p>One idea per card, with a worked example in rupees. Good for a tea break, and linked from every chapter that uses the word.</p>
+          <p style="margin-top:14px"><a class="btn btn--ink btn--sm" href="/glossary/">Browse all {terms.length} terms</a></p>
+        </div>
+        <div class="chips">
+          {sample.map((t) => <a class="chip" href={`/glossary/${t!.id}/`}>{t!.title}</a>)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {feeds.map(({ s, posts }) => posts.length > 0 && (
+    <section class="section container" data-level={s.slug}>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow eyebrow--lv">Latest</p>
+          <h2 class="section-head__title">{s.name}</h2>
+          <p class="section-head__sub">{s.tagline}</p>
+        </div>
+        <a class="section-head__more" href={sectionHref(s)}>All {s.short} &rarr;</a>
+      </div>
+      <div class="cards">
+        {posts.slice(0, 3).map((p) => <StoryCard post={p} section={s} />)}
+      </div>
+    </section>
+  ))}
+</Base>

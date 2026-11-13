@@ -1,0 +1,14 @@
+---
+// A progress bar for a set of chapters. The numbers are filled in by the
+// progress script from what this browser has marked as done.
+interface Props {
+  ids: string[];
+  level?: string;       // section slug, for colour
+  hideEmpty?: boolean;  // stay hidden until at least one chapter is done
+}
+const { ids, level, hideEmpty = false } = Astro.props;
+---
+<div class="meter-wrap" data-progress data-ids={JSON.stringify(ids)} data-level={level} data-hide-empty={hideEmpty ? '' : undefined} hidden={hideEmpty}>
+  <div class="meter" aria-hidden="true"><span></span></div>
+  <span class="meter__text" data-progress-text>{ids.length} {ids.length === 1 ? 'chapter' : 'chapters'} to go</span>
+</div>

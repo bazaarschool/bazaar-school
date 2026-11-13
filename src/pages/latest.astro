@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import StoryCard from '../components/StoryCard.astro';
+import { getLivePosts, getSections } from '../lib/sections';
+
+const posts = await getLivePosts();
+const sections = await getSections();
+const byName = new Map(sections.map((s) => [s.name, s]));
+---
+<Base title="Latest" description="The newest lessons and articles on Bazaar School, across every section.">
+  <section class="sec-hero">
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><span aria-current="page">Latest</span></nav>
+      <div class="sec-hero__row">
+        <div>
+          <p class="eyebrow">Newest first</p>
+          <h1>Latest</h1>
+          <p class="sec-hero__tag">Everything we have published, newest at the top. For the lessons in order, use the <a href="/curriculum/" style="text-decoration:underline;text-underline-offset:3px">curriculum</a>.</p>
+        </div>
+        <div class="sec-hero__facts"><span class="sec-hero__fact">{posts.length} {posts.length === 1 ? 'article' : 'articles'}</span></div>
+      </div>
+    </div>
+  </section>
+  <div class="container sec-body">
+    {posts.length ? (
+      <div class="cards">
+        {posts.map((p, i) => <StoryCard post={p} section={byName.get(p.data.category)} lead={i === 0} />)}
+      </div>
+    ) : (
+      <p class="empty">Nothing published yet.</p>
+    )}
+  </div>
+</Base>

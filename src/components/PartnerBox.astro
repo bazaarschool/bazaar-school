@@ -1,0 +1,15 @@
+---
+// Optional broker / partner call-to-action. Renders nothing until a URL is set
+// in Site settings (settings.json → partner.url).
+import { PARTNER } from '../data/site';
+const show = !!PARTNER.url;
+---
+{show && (
+  <aside class="partner" aria-label="Partner offer">
+    <p class="partner__label">Partner</p>
+    <strong>{PARTNER.label || 'Open a demat account'}</strong>
+    {PARTNER.blurb && <p>{PARTNER.blurb}</p>}
+    <a class="btn btn--primary btn--sm" href={PARTNER.url} target="_blank" rel="noopener sponsored">Open an account</a>
+    <small>Affiliate link. We may earn a commission; it costs you nothing extra.</small>
+  </aside>
+)}

@@ -1,0 +1,20 @@
+---
+import { ADS } from '../data/site';
+interface Props { slot?: string; label?: string; }
+const { slot = '', label = 'Advertisement' } = Astro.props;
+const enabled = !!ADS.adsenseClient;
+---
+{enabled && (
+  <div class="ad-slot-wrap">
+    <span class="ad-slot-label">{label}</span>
+    <ins
+      class="adsbygoogle"
+      style="display:block"
+      data-ad-client={ADS.adsenseClient}
+      data-ad-slot={slot}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    ></ins>
+    <script is:inline>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+)}

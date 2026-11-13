@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPage } from '../lib/pages';
+import { getLevels, getSections, sectionHref } from '../lib/sections';
+
+const { data, Content } = await getPage('start');
+const levels = await getLevels();
+const stories = (await getSections()).find((s) => s.kind === 'feed');
+const basics = levels[0];
+const inter = levels[1];
+
+const paths = [
+  basics?.chapters[0] && {
+    level: basics.section.slug,
+    who: 'New to the market',
+    title: `Start at ${basics.section.short}, chapter ${basics.chapters[0].num}`,
+    text: 'You have never bought a share, or you have and are not sure what you own. Begin with what a share is and work down the list in order.',
+    href: `/${basics.chapters[0].post.id}/`,
+    go: `Open chapter ${basics.chapters[0].num}`,
+  },
+  inter?.chapters[0] && {
+    level: inter.section.slug,
+    who: 'Already investing',
+    title: `Begin with ${inter.section.short}`,
+    text: 'You have a demat account and some shares or SIPs. Run through the Basics self-checks to find gaps, then start judging companies.',
+    href: `/${inter.chapters[0].post.id}/`,
+    go: `Open chapter ${inter.chapters[0].num}`,
+  },
+  stories && {
+    level: stories.slug,
+    who: 'Just curious',
+    title: `Read ${stories.name} first`,
+    text: 'Not ready to study yet? Start with the history behind Dalal Street. Most readers come away with a question the course answers.',
+    href: sectionHref(stories),
+    go: `Open ${stories.short}`,
+  },
+].filter((p): p is NonNullable<typeof p> => !!p);
+---
+<Base title={data.title} description={data.description} active="Start here">
+  <div class="page page--wide">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><span aria-current="page">Start here</span></nav>
+    {data.heroEyebrow && <p class="eyebrow" style="margin-top:18px">{data.heroEyebrow}</p>}
+    <h1 class="page__title">{data.heading || data.title} {data.headingAccent && <span style="color:var(--c-accent)">{data.headingAccent}</span>}</h1>
+    {data.intro && <p class="page__lead">{data.intro}</p>}
+
+    <div class="paths">
+      {paths.map((p) => (
+        <a class="path-card" href={p.href} data-level={p.level}>
+          <span class="path-card__who">{p.who}</span>
+          <strong>{p.title}</strong>
+          <p>{p.text}</p>
+          <span class="path-card__go">{p.go} &rarr;</span>
+        </a>
+      ))}
+    </div>
+
+    <div class="prose" style="max-width:720px;margin-top:36px"><Content /></div>
+  </div>
+</Base>

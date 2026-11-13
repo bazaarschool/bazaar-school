@@ -1,0 +1,10 @@
+{
+  "name": "Bazaar Basics",
+  "slug": "basics",
+  "kind": "course",
+  "short": "Basics",
+  "tagline": "Start here if you have never bought a share.",
+  "description": "What a share is, what Sensex and Nifty measure, how a demat account works, and how your first order actually gets filled. No jargon left unexplained.",
+  "image": "/images/sections/basics.jpg",
+  "order": 1
+}

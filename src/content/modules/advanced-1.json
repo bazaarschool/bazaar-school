@@ -1,0 +1,1 @@
+{ "slug": "advanced-1", "title": "Derivatives", "section": "Bazaar Advanced", "order": 1, "description": "Futures and options as they actually work in India, and who they are for.", "planned": ["Hedging a portfolio with index puts", "Option pricing in plain words: time, volatility and the Greeks you need"] }

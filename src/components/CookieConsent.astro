@@ -1,0 +1,143 @@
+<!-- Bottom consent bar -->
+<div id="cookie-consent" class="cc" hidden>
+  <div class="container cc__inner">
+    <p class="cc__text">
+      We use <strong>essential</strong> cookies to run the site and remember your choices.
+      With your OK we’d also use <strong>analytics</strong> (and later, advertising) cookies. See our <a href="/privacy/">Privacy Policy</a>.
+    </p>
+    <div class="cc__actions">
+      <button class="btn btn--ghost btn--sm" type="button" data-cc="manage">Manage</button>
+      <button class="btn btn--ghost btn--sm" type="button" data-cc="reject">Essential only</button>
+      <button class="btn btn--primary btn--sm" type="button" data-cc="accept">Accept all</button>
+    </div>
+  </div>
+</div>
+
+<!-- Preferences modal -->
+<div id="cc-prefs" class="cc-prefs" hidden>
+  <div class="cc-prefs__backdrop" data-cc="close-prefs"></div>
+  <div class="cc-prefs__card" role="dialog" aria-modal="true" aria-label="Cookie preferences">
+    <h2 class="cc-prefs__title">Cookie preferences</h2>
+    <p class="cc-prefs__intro">Choose which cookies we can use. Essential cookies are always on — the site can’t work without them.</p>
+
+    <ul class="cc-prefs__list">
+      <li class="cc-pref">
+        <div class="cc-pref__copy"><strong>Essential</strong><span>Keeps the site working and remembers your preferences.</span></div>
+        <span class="cc-pref__locked">Always on</span>
+      </li>
+      <li class="cc-pref">
+        <div class="cc-pref__copy"><strong>Analytics</strong><span>Helps us see which lessons are read (Google Analytics).</span></div>
+        <label class="cc-switch"><input type="checkbox" data-cc-cat="analytics" /><span class="cc-switch__track"></span></label>
+      </li>
+      <li class="cc-pref">
+        <div class="cc-pref__copy"><strong>Advertising</strong><span>Lets partners show relevant ads (used once ads are enabled).</span></div>
+        <label class="cc-switch"><input type="checkbox" data-cc-cat="ads" /><span class="cc-switch__track"></span></label>
+      </li>
+    </ul>
+
+    <div class="cc-prefs__actions">
+      <button class="btn btn--ghost btn--sm" type="button" data-cc="reject">Reject all</button>
+      <button class="btn btn--primary btn--sm" type="button" data-cc="save">Save preferences</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cc {
+    position: fixed; left: 16px; right: 16px; bottom: 24px; z-index: 650;
+  }
+  .cc__inner {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: space-between;
+    max-width: 1000px; background: var(--c-surface); border: 1px solid var(--c-border-2);
+    border-radius: var(--radius); padding: 16px 20px; box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+  }
+  .cc__text { font-size: var(--sz-sm); line-height: 1.55; color: var(--c-text); margin: 0; max-width: 62ch; }
+  .cc__actions { display: flex; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
+  @media (max-width: 560px) {
+    .cc { bottom: 12px; }
+    .cc__inner { padding: 14px 16px; }
+    .cc__actions { width: 100%; }
+    .cc__actions .btn { flex: 1; justify-content: center; }
+  }
+
+  .cc-prefs { position: fixed; inset: 0; z-index: 700; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .cc-prefs[hidden] { display: none; }
+  .cc-prefs__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
+  .cc-prefs__card {
+    position: relative; width: min(520px, 100%); max-height: 90vh; overflow-y: auto;
+    background: var(--c-surface); border: 1px solid var(--c-border-2); border-radius: var(--radius-lg);
+    padding: 28px; box-shadow: 0 30px 70px rgba(0,0,0,0.4);
+  }
+  .cc-prefs__title { font-family: var(--f-display); font-size: var(--sz-2xl); font-weight: 900; margin-bottom: 8px; }
+  .cc-prefs__intro { font-size: var(--sz-sm); color: var(--c-muted); line-height: 1.6; margin-bottom: 20px; }
+  .cc-prefs__list { list-style: none; margin: 0 0 22px; padding: 0; }
+  .cc-pref {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px 0; border-top: 1px solid var(--c-border);
+  }
+  .cc-pref__copy strong { display: block; font-size: var(--sz-base); margin-bottom: 2px; }
+  .cc-pref__copy span { font-size: var(--sz-xs); color: var(--c-muted); line-height: 1.5; }
+  .cc-pref__locked { font-family: var(--f-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--c-accent); white-space: nowrap; }
+  .cc-prefs__actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* toggle switch */
+  .cc-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; cursor: pointer; }
+  .cc-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .cc-switch__track {
+    position: absolute; inset: 0; border-radius: 999px; background: var(--c-border-2);
+    transition: background var(--dur) var(--ease);
+  }
+  .cc-switch__track::before {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; transition: transform var(--dur) var(--ease);
+  }
+  .cc-switch input:checked + .cc-switch__track { background: var(--c-accent); }
+  .cc-switch input:checked + .cc-switch__track::before { transform: translateX(20px); }
+  .cc-switch input:focus-visible + .cc-switch__track { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+</style>
+
+<script is:inline>
+  (function () {
+    var KEY = 'bs_consent';
+    function read() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
+    function save(c) { localStorage.setItem(KEY, JSON.stringify(c)); }
+    function apply(c) { if (c && c.analytics && window.loadGA) window.loadGA(); /* ads load wired when AdSense is added */ }
+    function $(id) { return document.getElementById(id); }
+    function hideBar() { var b = $('cookie-consent'); if (b) b.hidden = true; }
+    function hidePrefs() { var p = $('cc-prefs'); if (p) p.hidden = true; document.body.style.overflow = ''; }
+    function showPrefs() {
+      var p = $('cc-prefs'); if (!p) return;
+      var c = read() || {};
+      var a = p.querySelector('[data-cc-cat="analytics"]'); if (a) a.checked = !!c.analytics;
+      var d = p.querySelector('[data-cc-cat="ads"]'); if (d) d.checked = !!c.ads;
+      p.hidden = false; document.body.style.overflow = 'hidden';
+    }
+
+    // One delegated listener on the document — catches every consent button reliably.
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-cc]') : null;
+      if (!t) return;
+      var action = t.getAttribute('data-cc');
+      if (action === 'accept') { var c = { analytics: true, ads: true }; save(c); apply(c); hideBar(); hidePrefs(); }
+      else if (action === 'reject') { save({ analytics: false, ads: false }); hideBar(); hidePrefs(); }
+      else if (action === 'manage') { showPrefs(); }
+      else if (action === 'close-prefs') { hidePrefs(); }
+      else if (action === 'save') {
+        var p = $('cc-prefs');
+        var a = p.querySelector('[data-cc-cat="analytics"]');
+        var d = p.querySelector('[data-cc-cat="ads"]');
+        var c2 = { analytics: !!(a && a.checked), ads: !!(d && d.checked) };
+        save(c2); apply(c2); hideBar(); hidePrefs();
+      }
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hidePrefs(); });
+
+    function init() {
+      var existing = read();
+      if (existing) apply(existing);
+      else { var b = $('cookie-consent'); if (b) b.hidden = false; }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+</script>

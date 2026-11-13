@@ -1,0 +1,10 @@
+{
+  "name": "Bazaar Stories",
+  "slug": "stories",
+  "kind": "feed",
+  "short": "Stories",
+  "tagline": "The history behind the numbers on the screen.",
+  "description": "Scams, crashes, rituals and the people who built Dalal Street. The market makes more sense once you know where it came from.",
+  "image": "/images/sections/stories.jpg",
+  "order": 4
+}

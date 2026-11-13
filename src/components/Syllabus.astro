@@ -1,0 +1,54 @@
+---
+// A level's modules and chapters, drawn as ruled exercise-book pages.
+// Written chapters link; planned ones show as "Coming soon".
+import type { Level } from '../lib/sections';
+interface Props {
+  level: Level;
+  compact?: boolean;      // no excerpts or module descriptions (asides, home)
+  planned?: boolean;      // include planned chapters
+  currentId?: string;     // highlight the chapter being read
+  heading?: 'h2' | 'h3' | 'p';
+}
+const { level, compact = false, planned = true, currentId = '', heading = 'h3' } = Astro.props;
+const H = heading;
+---
+<div class={'syllabus' + (compact ? ' syllabus--compact' : '')} data-level={level.section.slug}>
+  {level.modules.map((m) => {
+    const rows = planned ? m.rows : m.rows.filter((r) => r.post);
+    if (!rows.length) return null;
+    return (
+      <section class="module" id={m.id} aria-label={`Module ${m.index}: ${m.title}`}>
+        <div class="module__head">
+          <span class="module__num">Module {m.index}</span>
+          <H class="module__title">{m.title}</H>
+          {!compact && m.description && <p class="module__desc">{m.description}</p>}
+          {m.liveIds.length > 0 && (
+            <span class="module__progress" data-progress data-format="short" data-ids={JSON.stringify(m.liveIds)}>
+              {m.liveIds.length} of {m.rows.length} written
+            </span>
+          )}
+        </div>
+        <ol class={'register' + (compact ? ' register--compact' : '')}>
+          {rows.map((r) =>
+            r.post ? (
+              <li class={'register__row' + (r.post.id === currentId ? ' is-current' : '')} data-chapter={r.post.id}>
+                <span class="register__num">{r.num}</span>
+                <div class="register__main">
+                  <a class="register__title" href={`/${r.post.id}/`} aria-current={r.post.id === currentId ? 'page' : undefined}>{r.post.data.title}</a>
+                  {!compact && <p class="register__excerpt">{r.post.data.excerpt}</p>}
+                </div>
+                <span class="register__meta">{r.post.data.readTime}</span>
+              </li>
+            ) : (
+              <li class="register__row register__row--planned">
+                <span class="register__num">{r.num}</span>
+                <div class="register__main"><span class="register__title">{r.title}</span></div>
+                <span class="register__meta">Coming soon</span>
+              </li>
+            ),
+          )}
+        </ol>
+      </section>
+    );
+  })}
+</div>

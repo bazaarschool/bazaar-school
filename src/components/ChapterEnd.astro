@@ -1,0 +1,58 @@
+---
+// End of a course chapter: what you can now do, a self-check, and the
+// "mark as done" button that feeds the progress bars.
+interface Props {
+  postId: string;
+  outcomes: string[];
+  quiz: { q: string; a: string }[];
+  moduleIds: string[];
+  moduleLabel: string;   // "Module 1: What the market is"
+  levelIds: string[];
+  levelName: string;     // "Bazaar Basics"
+  next?: { href: string; label: string; title: string };
+}
+const { postId, outcomes, quiz, moduleIds, moduleLabel, levelIds, levelName, next } = Astro.props;
+---
+<section class="chapter-end" aria-label="Chapter wrap-up">
+  {outcomes.length > 0 && (
+    <div class="outcomes">
+      <h2 class="outcomes__title">You can now</h2>
+      <ul>{outcomes.map((o) => <li>{o}</li>)}</ul>
+    </div>
+  )}
+
+  {quiz.length > 0 && (
+    <div class="selfcheck" data-selfcheck>
+      <div class="selfcheck__head">
+        <h2 class="selfcheck__title">Quick self-check</h2>
+        <span class="selfcheck__count" data-selfcheck-count>{quiz.length} questions</span>
+      </div>
+      <p class="selfcheck__hint">Answer in your head first, then tap a question to see ours.</p>
+      {quiz.map((item, i) => (
+        <details class="selfcheck__item">
+          <summary><span class="selfcheck__n">Q{i + 1}</span><span>{item.q}</span></summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </div>
+  )}
+
+  <div class="finish">
+    <button
+      type="button"
+      class="finish__btn"
+      hidden
+      aria-pressed="false"
+      data-mark-done={postId}
+      data-module-ids={JSON.stringify(moduleIds)}
+      data-module-label={moduleLabel}
+      data-level-ids={JSON.stringify(levelIds)}
+      data-level-name={levelName}
+    >
+      <span class="finish__icon" aria-hidden="true">&#10003;</span>
+      <span data-finish-label>Mark chapter as done</span>
+    </button>
+    <p class="finish__msg" data-finish-msg aria-live="polite"></p>
+    {next && <a class="btn finish__next" href={next.href}>{next.label}: {next.title} &rarr;</a>}
+  </div>
+</section>

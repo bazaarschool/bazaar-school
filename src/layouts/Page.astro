@@ -1,0 +1,16 @@
+---
+// Simple text page (privacy, terms, disclaimer): title, optional lead, Markdown body.
+import Base from './Base.astro';
+import { fmtDateLong } from '../lib/format';
+interface Props { title: string; description?: string; updated?: Date; lead?: string; noindex?: boolean; }
+const { title, description, updated, lead, noindex = false } = Astro.props;
+---
+<Base title={title} description={description} noindex={noindex}>
+  <div class="page">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><span aria-current="page">{title}</span></nav>
+    <h1 class="page__title">{title}</h1>
+    {lead && <p class="page__lead">{lead}</p>}
+    {updated && <p class="page__updated">Last updated {fmtDateLong(updated)}</p>}
+    <div class="prose"><slot /></div>
+  </div>
+</Base>

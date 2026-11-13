@@ -1,0 +1,255 @@
+# Decap CMS configuration: the browser-based editor at /admin/
+# Auth + publishing run through Netlify (enable Identity + Git Gateway on your site).
+backend:
+  name: git-gateway
+  branch: main
+  repo: bazaarschool/bazaar-school
+
+# Uploaded images are committed here and referenced from the site root.
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+site_url: https://bazaarschool.com
+display_url: https://bazaarschool.com
+logo_url: https://bazaarschool.com/apple-touch-icon.png
+
+collections:
+  - name: "blog"
+    label: "Lessons & articles"
+    label_singular: "Article"
+    description: "Lessons (Bazaar Basics / Intermediate / Advanced) and articles (Bazaar Stories / Bazaar AI). Publishing updates the live site."
+    folder: "src/content/blog"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "{{slug}}"
+    summary: "{{category}} {{module}} ch {{lesson}}: {{title}}"
+    sortable_fields: ["date", "title", "category", "module", "lesson"]
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Excerpt (shows under the title and as the search description)", name: "excerpt", widget: "text" }
+      - label: "Section"
+        name: "category"
+        widget: "relation"
+        collection: "categories"
+        value_field: "name"
+        search_fields: ["name"]
+        display_fields: ["name"]
+        hint: "Bazaar Basics, Intermediate or Advanced for lessons; Bazaar Stories or Bazaar AI for articles."
+      - label: "Module (courses only)"
+        name: "module"
+        widget: "relation"
+        collection: "modules"
+        value_field: "slug"
+        search_fields: ["title", "section"]
+        display_fields: ["section", "title"]
+        required: false
+        hint: "Which module of the level this chapter belongs to. Leave blank for Stories and AI."
+      - { label: "Chapter number inside the module (courses only)", name: "lesson", widget: "number", required: false, value_type: "int", min: 1, hint: "1 for the module's first chapter, 2 for the second... The site shows it as module.chapter, e.g. 2.3. Leave blank for Stories and AI." }
+      - { label: "You can now (courses only)", name: "outcomes", widget: "list", required: false, default: [], hint: "Two or three short lines shown at the end of the chapter, e.g. Convert a points move into a percentage." }
+      - label: "Self-check questions (courses only)"
+        name: "quiz"
+        widget: "list"
+        required: false
+        default: []
+        summary: "{{fields.q}}"
+        hint: "Three questions work best. Answers stay hidden until the reader taps."
+        fields:
+          - { label: "Question", name: "q", widget: "string" }
+          - { label: "Answer", name: "a", widget: "text" }
+      - { label: "Tags", name: "tags", widget: "list", required: false, default: [] }
+      - label: "Author"
+        name: "author"
+        widget: "relation"
+        collection: "authors"
+        value_field: "name"
+        search_fields: ["name"]
+        display_fields: ["name"]
+        hint: "Pick a writer. Add or edit writers in the Authors section."
+      - { label: "Author bio (optional override)", name: "authorBio", widget: "text", required: false, hint: "Usually leave blank; the bio comes from the Authors section." }
+      - { label: "Publish date", name: "date", widget: "datetime" }
+      - { label: "Updated on (optional)", name: "updated", widget: "datetime", required: false, hint: "Set this when you revise a lesson after a rule change." }
+      - { label: "Cover image", name: "image", widget: "image" }
+      - { label: "Wide image (optional)", name: "imageWide", widget: "image", required: false }
+      - { label: "Read time", name: "readTime", widget: "string", default: "6 min" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false, required: false }
+      - { label: "Draft (hide from the live site)", name: "draft", widget: "boolean", default: false }
+      - { label: "SEO title (optional, overrides the headline in search)", name: "metaTitle", widget: "string", required: false }
+      - { label: "SEO description (optional, overrides the excerpt in search)", name: "metaDescription", widget: "text", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "categories"
+    label: "Sections"
+    label_singular: "Section"
+    description: "The five heads in the top navigation. Courses list lessons in number order; feeds list newest first. Lower 'order' shows first."
+    folder: "src/content/categories"
+    create: true
+    delete: true
+    extension: "json"
+    format: "json"
+    slug: "{{slug}}"
+    identifier_field: "name"
+    summary: "{{order}}.  {{name}}  ({{kind}})"
+    sortable_fields: ["order", "name"]
+    fields:
+      - { label: "Name", name: "name", widget: "string", hint: "Shown in the menu and as the page title, e.g. Bazaar Basics." }
+      - { label: "URL path", name: "slug", widget: "string", hint: "Lowercase, no spaces, e.g. basics → bazaarschool.com/basics/", pattern: ["^[a-z0-9-]+$", "Lowercase letters, numbers and hyphens only"] }
+      - { label: "Kind", name: "kind", widget: "select", options: [{ label: "Course (lessons in number order)", value: "course" }, { label: "Feed (newest first)", value: "feed" }], default: "feed" }
+      - { label: "Short label", name: "short", widget: "string", required: false, hint: "Used where space is tight, e.g. Basics." }
+      - { label: "Tagline", name: "tagline", widget: "string", required: false, hint: "One line under the section name." }
+      - { label: "Description", name: "description", widget: "text", required: false, hint: "A short paragraph; also the page's search description." }
+      - { label: "Image", name: "image", widget: "image", required: false, hint: "Used as the share image for the section page." }
+      - { label: "Order (lower shows first)", name: "order", widget: "number", default: 99, value_type: "int" }
+
+  - name: "modules"
+    label: "Modules"
+    label_singular: "Module"
+    description: "The modules inside Basics, Intermediate and Advanced. Planned chapters show on the syllabus as Coming soon; delete a line once that chapter is published."
+    folder: "src/content/modules"
+    create: true
+    delete: true
+    extension: "json"
+    format: "json"
+    slug: "{{slug}}"
+    identifier_field: "slug"
+    summary: "{{section}}: {{order}}. {{title}}"
+    sortable_fields: ["section", "order", "title"]
+    fields:
+      - { label: "ID", name: "slug", widget: "string", hint: "Short and permanent, e.g. basics-4. Chapters point at this ID, so do not change it later.", pattern: ["^[a-z0-9-]+$", "Lowercase letters, numbers and hyphens only"] }
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Level"
+        name: "section"
+        widget: "relation"
+        collection: "categories"
+        value_field: "name"
+        search_fields: ["name"]
+        display_fields: ["name"]
+      - { label: "Order inside the level", name: "order", widget: "number", value_type: "int", default: 99 }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Planned chapters", name: "planned", widget: "list", required: false, default: [], hint: "Titles of chapters not written yet, in order." }
+
+  - name: "glossary"
+    label: "Glossary"
+    label_singular: "Term"
+    description: "Two-minute concept cards. The first mention of a term in any chapter links to its card automatically."
+    folder: "src/content/glossary"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    sortable_fields: ["title"]
+    fields:
+      - { label: "Term", name: "title", widget: "string" }
+      - { label: "One-line meaning", name: "short", widget: "text", hint: "One sentence, under 160 characters. Shown on the card and as the link tooltip." }
+      - { label: "Other names", name: "aliases", widget: "list", required: false, default: [], hint: "Abbreviations, plurals and spellings to link, e.g. P/E, price to earnings." }
+      - label: "Related terms"
+        name: "related"
+        widget: "relation"
+        collection: "glossary"
+        value_field: "title"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        multiple: true
+        required: false
+      - { label: "Chapter that teaches it (URL path)", name: "lesson", widget: "string", required: false, hint: "The chapter's address without slashes, e.g. what-is-a-share" }
+      - { label: "Link automatically in chapters", name: "autolink", widget: "boolean", default: true, required: false, hint: "Turn off for everyday words like share." }
+      - { label: "Explanation and example", name: "body", widget: "markdown" }
+
+  - name: "authors"
+    label: "Authors"
+    label_singular: "Author"
+    description: "The people behind the lessons. Name, role, photo and bio appear on every article they write."
+    folder: "src/content/authors"
+    create: true
+    delete: true
+    extension: "json"
+    format: "json"
+    slug: "{{name}}"
+    identifier_field: "name"
+    summary: "{{name}}"
+    sortable_fields: ["name"]
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Role / title", name: "role", widget: "string", required: false, default: "Contributor" }
+      - { label: "Photo", name: "photo", widget: "image", required: false, hint: "A square image works best. Leave blank to show initials." }
+      - { label: "Bio", name: "bio", widget: "text", required: false, hint: "One or two sentences shown under each article. Mention that you are not a SEBI-registered adviser unless you are." }
+
+  - name: "pages"
+    label: "Pages"
+    description: "Edit the wording of the Start here, About, Disclaimer, Privacy and Terms pages."
+    files:
+      - name: "about"
+        label: "About page"
+        file: "src/content/pages/about.md"
+        fields:
+          - { label: "Browser / SEO title", name: "title", widget: "string" }
+          - { label: "SEO description", name: "description", widget: "text", required: false }
+          - { label: "Eyebrow (small label above the headline)", name: "heroEyebrow", widget: "string", required: false }
+          - { label: "Headline", name: "heading", widget: "string", required: false }
+          - { label: "Headline, highlighted ending", name: "headingAccent", widget: "string", required: false }
+          - { label: "Intro paragraph", name: "intro", widget: "text", required: false }
+          - { label: "Body", name: "body", widget: "markdown" }
+      - name: "start"
+        label: "Start here page"
+        file: "src/content/pages/start.md"
+        fields:
+          - { label: "Browser / SEO title", name: "title", widget: "string" }
+          - { label: "SEO description", name: "description", widget: "text", required: false }
+          - { label: "Eyebrow", name: "heroEyebrow", widget: "string", required: false }
+          - { label: "Headline", name: "heading", widget: "string", required: false }
+          - { label: "Intro paragraph", name: "intro", widget: "text", required: false }
+          - { label: "Body", name: "body", widget: "markdown" }
+      - name: "disclaimer"
+        label: "Disclaimer"
+        file: "src/content/pages/disclaimer.md"
+        fields:
+          - { label: "Browser / SEO title", name: "title", widget: "string" }
+          - { label: "SEO description", name: "description", widget: "text", required: false }
+          - { label: "Intro line", name: "intro", widget: "text", required: false }
+          - { label: "Last updated", name: "updated", widget: "datetime", required: false, date_format: "YYYY-MM-DD", time_format: false }
+          - { label: "Body", name: "body", widget: "markdown" }
+      - name: "privacy"
+        label: "Privacy Policy"
+        file: "src/content/pages/privacy.md"
+        fields:
+          - { label: "Browser / SEO title", name: "title", widget: "string" }
+          - { label: "SEO description", name: "description", widget: "text", required: false }
+          - { label: "Last updated", name: "updated", widget: "datetime", required: false, date_format: "YYYY-MM-DD", time_format: false }
+          - { label: "Body", name: "body", widget: "markdown" }
+      - name: "terms"
+        label: "Terms of Use"
+        file: "src/content/pages/terms.md"
+        fields:
+          - { label: "Browser / SEO title", name: "title", widget: "string" }
+          - { label: "SEO description", name: "description", widget: "text", required: false }
+          - { label: "Last updated", name: "updated", widget: "datetime", required: false, date_format: "YYYY-MM-DD", time_format: false }
+          - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "settings"
+    label: "Site settings"
+    description: "Site-wide settings: name, taglines, contact, social links, analytics/ads IDs and the optional partner box."
+    files:
+      - name: "general"
+        label: "General"
+        file: "src/data/settings.json"
+        fields:
+          - { label: "Site name", name: "name", widget: "string" }
+          - { label: "Tagline (default description for search and sharing)", name: "tagline", widget: "text" }
+          - { label: "Footer tagline", name: "footerTagline", widget: "text" }
+          - { label: "Contact email", name: "contactEmail", widget: "string", required: false }
+          - { label: "X / Twitter handle (for share cards)", name: "twitter", widget: "string", required: false }
+          - { label: "Google Analytics ID", name: "gaId", widget: "string", required: false, hint: "e.g. G-XXXXXXXXXX. Leave blank to keep analytics off." }
+          - { label: "AdSense publisher ID", name: "adsenseClient", widget: "string", required: false, hint: "e.g. ca-pub-1234567890. Leave blank to keep ads off." }
+          - label: "Social links (blank ones are hidden)"
+            name: "social"
+            widget: "object"
+            fields:
+              - { label: "X / Twitter URL", name: "twitter", widget: "string", required: false }
+              - { label: "Instagram URL", name: "instagram", widget: "string", required: false }
+              - { label: "YouTube URL", name: "youtube", widget: "string", required: false }
+          - label: "Partner box (broker affiliate; hidden until a URL is set)"
+            name: "partner"
+            widget: "object"
+            fields:
+              - { label: "Heading", name: "label", widget: "string", required: false, hint: "e.g. Open a free demat account" }
+              - { label: "Affiliate URL", name: "url", widget: "string", required: false }
+              - { label: "One-line blurb", name: "blurb", widget: "string", required: false }

@@ -1,0 +1,104 @@
+---
+// Section pages. Courses (/basics/, /intermediate/, /advanced/) show their
+// modules and numbered chapters; feeds (/stories/, /ai/) list newest first.
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import LevelBadge from '../components/LevelBadge.astro';
+import StoryCard from '../components/StoryCard.astro';
+import Syllabus from '../components/Syllabus.astro';
+import ProgressMeter from '../components/ProgressMeter.astro';
+import { getSections, getLevels, orderFeed, sectionHref, type Section } from '../lib/sections';
+import { SITE } from '../data/site';
+
+export async function getStaticPaths() {
+  const sections = await getSections();
+  return sections.map((s) => ({ params: { section: s.slug }, props: { section: s } }));
+}
+
+const { section } = Astro.props as { section: Section };
+const levels = await getLevels();
+const li = levels.findIndex((l) => l.section.slug === section.slug);
+const level = li >= 0 ? levels[li] : undefined;
+const nextLevel = li >= 0 ? levels[li + 1] : undefined;
+const prevLevel = li > 0 ? levels[li - 1] : undefined;
+const feed = level ? [] : orderFeed(await getCollection('blog'), section);
+const items = level ? level.chapters.map((c) => c.post) : feed;
+const first = level?.chapters[0];
+const desc = section.description || `${section.name} on ${SITE.name}.`;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: section.name,
+  description: desc,
+  url: pageUrl,
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListOrder: level ? 'https://schema.org/ItemListOrderAscending' : 'https://schema.org/ItemListOrderDescending',
+    numberOfItems: items.length,
+    itemListElement: items.map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: new URL(`/${p.id}/`, Astro.site).href, name: p.data.title })),
+  },
+};
+---
+<Base title={section.name} description={desc} image={section.image} active={section.name} level={section.slug} jsonLd={jsonLd}>
+  <section class="sec-hero" data-level={section.slug}>
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span>/</span>
+        {level ? <a href="/curriculum/">Curriculum</a> : <a href="/latest/">Latest</a>}<span>/</span>
+        <span aria-current="page">{section.name}</span>
+      </nav>
+      <div class="sec-hero__row">
+        <div>
+          <LevelBadge slug={section.slug} label={level ? `Level ${level.index} · Course` : 'Feed · newest first'} />
+          <h1>{section.name}</h1>
+          <p class="sec-hero__tag">{section.tagline}</p>
+          {section.description && <p class="sec-hero__desc">{section.description}</p>}
+        </div>
+        <div class="sec-hero__facts">
+          {level ? (
+            <>
+              <span class="sec-hero__fact">{level.chapters.length} {level.chapters.length === 1 ? 'chapter' : 'chapters'} live{level.minutes ? `, about ${level.minutes} min` : ''}</span>
+              {level.planned > 0 && <span class="sec-hero__fact">{level.planned} more on the way</span>}
+              {level.chapters.length > 0 && <ProgressMeter ids={level.chapters.map((c) => c.post.id)} level={section.slug} />}
+              {first && (
+                <a
+                  class="btn btn--ink"
+                  href={`/${first.post.id}/`}
+                  data-continue={section.slug}
+                  data-done-href={nextLevel ? sectionHref(nextLevel.section) : '/curriculum/'}
+                  data-done-label={nextLevel ? `Level done. On to ${nextLevel.section.short}` : 'Level done. Back to the curriculum'}
+                >Start with chapter {first.num}</a>
+              )}
+            </>
+          ) : (
+            <span class="sec-hero__fact">{feed.length} {feed.length === 1 ? 'article' : 'articles'}</span>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container sec-body">
+    {level ? (
+      <div class="sec-body--wide"><Syllabus level={level} heading="h2" /></div>
+    ) : feed.length === 0 ? (
+      <p class="empty">Nothing here yet. The first articles are on their way.</p>
+    ) : (
+      <div class="cards">
+        {feed.map((p, i) => <StoryCard post={p} section={section} lead={i === 0} />)}
+      </div>
+    )}
+
+    {level && (nextLevel || prevLevel) && (
+      <div class="sec-next" data-level={(nextLevel || prevLevel)!.section.slug}>
+        <div>
+          <strong>{nextLevel ? `Finished ${section.short}? Continue with ${nextLevel.section.name}.` : 'This is the last level.'}</strong>
+          <p>{nextLevel ? nextLevel.section.tagline : `Go back to ${prevLevel!.section.name} if anything here felt rushed.`}</p>
+        </div>
+        <a class="btn btn--ghost" href={sectionHref((nextLevel || prevLevel)!.section)}>{nextLevel ? `Open ${nextLevel.section.short} →` : `Back to ${prevLevel!.section.short}`}</a>
+      </div>
+    )}
+  </div>
+</Base>

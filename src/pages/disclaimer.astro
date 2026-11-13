@@ -1,0 +1,6 @@
+---
+import Page from '../layouts/Page.astro';
+import { getPage } from '../lib/pages';
+const { data, Content } = await getPage('disclaimer');
+---
+<Page title={data.title} description={data.description} updated={data.updated} lead={data.intro}><Content /></Page>

@@ -1,0 +1,78 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getTerms, resolveTerms } from '../../lib/glossary';
+import { getPlacement, getSections } from '../../lib/sections';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('glossary');
+  return entries.map((entry) => ({ params: { term: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+
+const terms = await getTerms();
+const i = terms.findIndex((t) => t.id === entry.id);
+const prev = i > 0 ? terms[i - 1] : undefined;
+const next = i >= 0 && i < terms.length - 1 ? terms[i + 1] : undefined;
+const related = resolveTerms(d.related, terms).filter((t) => t.id !== entry.id);
+
+// "Also called": skip plurals and spellings that only repeat the title.
+const norm = (s: string) => s.toLowerCase().replace(/(es|s)$/, '');
+const aka: string[] = [];
+for (const a of d.aliases) {
+  if (norm(a) === norm(d.title) || aka.some((x) => norm(x) === norm(a))) continue;
+  aka.push(a);
+}
+
+const lessonPost = d.lesson ? (await getCollection('blog')).find((p) => p.id === d.lesson && !p.data.draft) : undefined;
+const placement = lessonPost ? await getPlacement(lessonPost.id) : undefined;
+const lessonSection = lessonPost ? (await getSections()).find((s) => s.name === lessonPost.data.category) : undefined;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTerm',
+  name: d.title,
+  description: d.short,
+  url: new URL(`/glossary/${entry.id}/`, Astro.site).href,
+  inDefinedTermSet: new URL('/glossary/', Astro.site).href,
+};
+---
+<Base title={`${d.title}: meaning and example`} description={d.short} active="Glossary" level={lessonSection?.slug} jsonLd={jsonLd}>
+  <article class="term" data-gloss-seen={entry.id}>
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a><span>/</span><a href="/glossary/">Glossary</a><span>/</span><span aria-current="page">{d.title}</span>
+    </nav>
+    <h1 class="term__title">{d.title}</h1>
+    {aka.length > 0 && <p class="term__aka">Also called: {aka.slice(0, 4).join(', ')}</p>}
+    <p class="term__short">{d.short}</p>
+    <div class="prose"><Content /></div>
+
+    {lessonPost && (
+      <div class="term__learn">
+        <div>
+          <p>Learn it properly in</p>
+          <strong>{placement ? `Chapter ${placement.chapter.num}: ` : ''}{lessonPost.data.title}</strong>
+        </div>
+        <a class="btn btn--ink btn--sm" href={`/${lessonPost.id}/`}>Open the chapter &rarr;</a>
+      </div>
+    )}
+
+    {related.length > 0 && (
+      <div class="term__related">
+        <p class="aside__title">Related terms</p>
+        <div class="chips">
+          {related.map((t) => <a class="chip" href={`/glossary/${t.id}/`}>{t.title}</a>)}
+        </div>
+      </div>
+    )}
+
+    <nav class="term__pager" aria-label="Other terms">
+      {prev ? <a href={`/glossary/${prev.id}/`}>&larr; {prev.title}</a> : <span></span>}
+      <a href="/glossary/">All terms</a>
+      {next ? <a href={`/glossary/${next.id}/`}>{next.title} &rarr;</a> : <span></span>}
+    </nav>
+  </article>
+</Base>

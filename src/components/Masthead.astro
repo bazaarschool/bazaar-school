@@ -1,0 +1,83 @@
+---
+import { getSections, sectionHref } from '../lib/sections';
+interface Props { active?: string; }
+const { active = '' } = Astro.props;
+const sections = await getSections();
+const util = [
+  { label: 'Start here', href: '/start/', cls: 'hdr__ulink--start' },
+  { label: 'Curriculum', href: '/curriculum/' },
+  { label: 'Glossary', href: '/glossary/' },
+];
+---
+<header class="hdr">
+  <div class="hdr__rule" aria-hidden="true"></div>
+  <div class="container hdr__inner">
+    <button class="hdr__menu" id="js-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="js-mobile-nav">
+      <span></span><span></span><span></span>
+    </button>
+
+    <a href="/" class="brand" aria-label="Bazaar School home">
+      <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="#F2B134"/>
+        <polyline points="6,23 12,17 17,20 26,9" fill="none" stroke="#0F2E25" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="26" cy="9" r="2.6" fill="#0F2E25"/>
+      </svg>
+      <span class="brand__name">Bazaar <em>School</em></span>
+    </a>
+
+    <nav class="hdr__util" aria-label="Site">
+      {util.map((u) => (
+        <a href={u.href} class={'hdr__ulink' + (u.cls ? ' ' + u.cls : '') + (active === u.label ? ' active' : '')} aria-current={active === u.label ? 'page' : undefined}>{u.label}</a>
+      ))}
+    </nav>
+
+    <button class="hdr__search" id="js-search-btn" aria-label="Search lessons, stories and glossary">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>
+      </svg>
+      <span>Search</span>
+      <kbd>/</kbd>
+    </button>
+  </div>
+
+  <nav class="hdr__tabs" aria-label="Sections">
+    <div class="container hdr__tabs-inner">
+      {sections.map((s) => (
+        <a href={sectionHref(s)} class={'hdr__tab' + (active === s.name ? ' active' : '')} data-level={s.slug} aria-current={active === s.name ? 'page' : undefined}>
+          <span class="hdr__tab-full">{s.name}</span><span class="hdr__tab-short">{s.short}</span>
+        </a>
+      ))}
+    </div>
+  </nav>
+
+  <div class="nav-overlay" id="js-nav-overlay" aria-hidden="true"></div>
+
+  <div class="menu" id="js-mobile-nav" aria-label="All sections">
+    <div class="container">
+      <div class="menu__grid">
+        {sections.map((s) => (
+          <a href={sectionHref(s)} class="menu__item" data-level={s.slug}>
+            <span class="menu__kind">{s.kind === 'course' ? 'Course' : 'Feed'}</span>
+            <span class="menu__name">{s.name}</span>
+            <span class="menu__tag">{s.tagline}</span>
+          </a>
+        ))}
+      </div>
+      <div class="menu__foot">
+        <a href="/start/">Start here</a>
+        <a href="/curriculum/">Curriculum</a>
+        <a href="/glossary/">Glossary</a>
+        <a href="/latest/">Latest</a>
+        <a href="/about/">About</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-overlay" id="js-search-overlay" role="dialog" aria-label="Search" aria-modal="true">
+    <div class="search-overlay__inner">
+      <input type="search" class="search-overlay__input" id="js-search-input" placeholder="Search lessons, stories, terms" autocomplete="off" aria-label="Search lessons, stories and glossary terms" />
+      <p class="search-overlay__hint">Press ESC to close</p>
+      <div class="search-results" id="js-search-results" role="listbox"></div>
+    </div>
+  </div>
+</header>

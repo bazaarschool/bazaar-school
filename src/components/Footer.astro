@@ -1,0 +1,69 @@
+---
+import { getSections, sectionHref } from '../lib/sections';
+import { SITE, SOCIAL } from '../data/site';
+const sections = await getSections();
+const courses = sections.filter((s) => s.kind === 'course');
+const feeds = sections.filter((s) => s.kind === 'feed');
+const year = new Date().getFullYear();
+const socialLinks = Object.entries(SOCIAL).filter(([, url]) => url);
+const socialLabel: Record<string, string> = { twitter: 'X', instagram: 'Instagram', youtube: 'YouTube' };
+---
+<footer class="footer">
+  <div class="container footer__grid">
+    <div>
+      <a href="/" class="brand" aria-label="Bazaar School home">
+        <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="7" fill="#F2B134"/>
+          <polyline points="6,23 12,17 17,20 26,9" fill="none" stroke="#0F2E25" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="26" cy="9" r="2.6" fill="#0F2E25"/>
+        </svg>
+        <span class="brand__name">Bazaar <em>School</em></span>
+      </a>
+      <p class="footer__tagline">{SITE.footerTagline}</p>
+      {socialLinks.length > 0 && (
+        <div class="footer__social">
+          {socialLinks.map(([k, url]) => <a href={url} target="_blank" rel="noopener">{socialLabel[k] || k}</a>)}
+        </div>
+      )}
+    </div>
+    <div>
+      <h4>Learn</h4>
+      <ul class="footer__links">
+        <li><a href="/start/">Start here</a></li>
+        {courses.map((s) => <li data-level={s.slug}><a href={sectionHref(s)}>{s.name}</a></li>)}
+        <li><a href="/curriculum/">Full curriculum</a></li>
+        <li><a href="/glossary/">Glossary</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Read</h4>
+      <ul class="footer__links">
+        {feeds.map((s) => <li data-level={s.slug}><a href={sectionHref(s)}>{s.name}</a></li>)}
+        <li><a href="/latest/">Latest</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Bazaar School</h4>
+      <ul class="footer__links">
+        <li><a href="/about/">About</a></li>
+        <li><a href="/disclaimer/">Disclaimer</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+        <li><a href="/terms/">Terms</a></li>
+        <li><button type="button" data-cc="manage">Cookie preferences</button></li>
+        {SITE.contactEmail && <li><a href={`mailto:${SITE.contactEmail}`}>Contact</a></li>}
+      </ul>
+    </div>
+  </div>
+  <div class="container footer__legal">
+    <p>
+      <strong>Educational content only.</strong> {SITE.name} is not registered with SEBI as an investment adviser or research analyst. Nothing on this site is a recommendation to buy, sell or hold any security, and past performance never guarantees future returns. Investments in securities markets are subject to market risks. Read the <a href="/disclaimer/">full disclaimer</a>.
+    </p>
+    <p>
+      Some links are affiliate links: if you open an account or buy something through them we may earn a commission at no extra cost to you. It never decides what we teach. See our <a href="/terms/">Terms</a> and <a href="/privacy/">Privacy Policy</a>.
+    </p>
+    <div class="footer__bottom">
+      <span>&copy; {year} {SITE.name}. All rights reserved.</span>
+      <span>Lessons in order. Made in India.</span>
+    </div>
+  </div>
+</footer>

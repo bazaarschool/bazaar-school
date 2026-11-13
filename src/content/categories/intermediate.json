@@ -1,0 +1,10 @@
+{
+  "name": "Bazaar Intermediate",
+  "slug": "intermediate",
+  "kind": "course",
+  "short": "Intermediate",
+  "tagline": "You own a few shares. Now learn to judge them.",
+  "description": "Reading annual reports, the handful of ratios that do most of the work, and how to look at a price chart without fooling yourself.",
+  "image": "/images/sections/intermediate.jpg",
+  "order": 2
+}

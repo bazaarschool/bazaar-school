@@ -1,0 +1,251 @@
+---
+import { getLivePosts, getSections, getLevels } from '../lib/sections';
+import { getTerms } from '../lib/glossary';
+const posts = await getLivePosts();
+const sections = await getSections();
+const levels = await getLevels();
+const terms = await getTerms();
+const byName = new Map(sections.map((s) => [s.name, s]));
+const numById = new Map(levels.flatMap((l) => l.chapters.map((c) => [c.post.id, { num: c.num, level: l }] as const)));
+
+const searchIndex = [
+  ...posts.map((p) => {
+    const ch = numById.get(p.id);
+    const s = byName.get(p.data.category);
+    return { t: p.data.title, c: ch ? `${ch.level.section.short} / Chapter ${ch.num}` : (s ? s.name : p.data.category), u: `/${p.id}/` };
+  }),
+  ...terms.map((t) => ({ t: t.title, c: 'Glossary', u: `/glossary/${t.id}/`, k: t.aliases.join(' ') })),
+];
+
+// Every written course chapter in reading order, for "continue" and progress.
+const courseIndex = levels.flatMap((l) => l.chapters.map((c) => ({ i: c.post.id, t: c.post.data.title, n: c.num, s: l.section.slug })));
+---
+<script type="application/json" id="js-search-index" is:inline set:html={JSON.stringify(searchIndex)}></script>
+<script type="application/json" id="js-course-index" is:inline set:html={JSON.stringify(courseIndex)}></script>
+<script>
+  // Theme toggle (floating)
+  (function () {
+    if (document.getElementById('js-theme-toggle')) return;
+    const btn = document.createElement('button');
+    btn.id = 'js-theme-toggle';
+    btn.className = 'theme-toggle';
+    btn.setAttribute('aria-label', 'Toggle light and dark mode');
+    btn.innerHTML = '<span class="theme-toggle__moon" aria-hidden="true">&#9790;</span><span class="theme-toggle__sun" aria-hidden="true">&#9728;</span>';
+    btn.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('bs_theme', next); } catch (e) {}
+    });
+    document.body.appendChild(btn);
+  })();
+
+  // On narrow screens the section tabs scroll sideways; keep the active one in view.
+  (function () {
+    const strip = document.querySelector<HTMLElement>('.hdr__tabs-inner');
+    const active = strip?.querySelector<HTMLElement>('.hdr__tab.active');
+    if (strip && active && strip.scrollWidth > strip.clientWidth) strip.scrollLeft = Math.max(0, active.offsetLeft - 16);
+  })();
+
+  // Menu (the hamburger button)
+  (function () {
+    const btn = document.getElementById('js-hamburger');
+    const nav = document.getElementById('js-mobile-nav');
+    const overlay = document.getElementById('js-nav-overlay');
+    if (!btn || !nav) return;
+    const isOpen = () => nav.classList.contains('open');
+    const open = () => { nav.classList.add('open'); overlay && overlay.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); };
+    const close = () => { nav.classList.remove('open'); overlay && overlay.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); };
+    btn.addEventListener('click', () => (isOpen() ? close() : open()));
+    overlay && overlay.addEventListener('click', close);
+    nav.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen()) close(); });
+  })();
+
+  // Search overlay (client-side filter over an embedded index)
+  (function () {
+    const btn = document.getElementById('js-search-btn');
+    const overlay = document.getElementById('js-search-overlay');
+    const input = document.getElementById('js-search-input') as HTMLInputElement | null;
+    const results = document.getElementById('js-search-results');
+    const idxEl = document.getElementById('js-search-index');
+    if (!btn || !overlay || !input || !results) return;
+    let index: { t: string; c: string; u: string; k?: string }[] = [];
+    try { index = JSON.parse(idxEl?.textContent || '[]'); } catch (e) {}
+    const open = () => { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; setTimeout(() => input.focus(), 60); };
+    const close = () => { overlay.classList.remove('open'); document.body.style.overflow = ''; };
+    btn.addEventListener('click', open);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', (e) => {
+      const t = e.target as HTMLElement | null;
+      const typing = !!(t && t.matches && t.matches('input, textarea, [contenteditable]'));
+      if (e.key === 'Escape') close();
+      if (!typing && e.key === '/') { e.preventDefault(); open(); }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); open(); }
+    });
+    const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      if (q.length < 2) { results.innerHTML = ''; return; }
+      const matches = index.filter((a) => (a.t + ' ' + a.c + ' ' + (a.k || '')).toLowerCase().includes(q)).slice(0, 8);
+      results.innerHTML = matches.length
+        ? matches.map((a) => `<a class="search-result-item" href="${a.u}" role="option"><h4>${esc(a.t)}</h4><span>${esc(a.c)}</span></a>`).join('')
+        : `<p class="search-empty">Nothing matches "${esc(q)}" yet.</p>`;
+    });
+  })();
+
+  // Copy-link button on article pages
+  (function () {
+    const copyBtn = document.querySelector('.js-copy-link');
+    if (!copyBtn) return;
+    const original = copyBtn.innerHTML;
+    const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+    copyBtn.addEventListener('click', () => {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(location.href).then(() => {
+        copyBtn.innerHTML = check; copyBtn.classList.add('copied'); copyBtn.setAttribute('aria-label', 'Link copied');
+        setTimeout(() => { copyBtn.innerHTML = original; copyBtn.classList.remove('copied'); copyBtn.setAttribute('aria-label', 'Copy link'); }, 1800);
+      });
+    });
+  })();
+
+  // Course progress: chapters marked as done, saved in this browser only.
+  (function () {
+    const KEY = 'bs_progress';
+    type Store = { done: Record<string, number> };
+    const read = (): Store => {
+      try { const v = JSON.parse(localStorage.getItem(KEY) || 'null'); return v && v.done ? v : { done: {} }; } catch (e) { return { done: {} }; }
+    };
+    const write = (s: Store) => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} };
+    let store = read();
+    const isDone = (id: string) => !!store.done[id];
+    const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const list = (el: HTMLElement, key: string): string[] => { try { return JSON.parse(el.dataset[key] || '[]'); } catch (e) { return []; } };
+    let course: { i: string; t: string; n: string; s: string }[] = [];
+    try { course = JSON.parse(document.getElementById('js-course-index')?.textContent || '[]'); } catch (e) {}
+
+    function refresh() {
+      document.querySelectorAll<HTMLElement>('[data-chapter]').forEach((el) => el.classList.toggle('is-done', isDone(el.dataset.chapter || '')));
+
+      document.querySelectorAll<HTMLElement>('[data-progress]').forEach((el) => {
+        const ids = list(el, 'ids');
+        const done = ids.filter(isDone).length;
+        const total = ids.length;
+        const text = el.querySelector<HTMLElement>('[data-progress-text]') || el;
+        text.textContent = el.dataset.format === 'short' ? `${done} of ${total} done` : `${done} of ${total} chapters done`;
+        const bar = el.querySelector<HTMLElement>('.meter > span');
+        if (bar) bar.style.width = total ? Math.round((done / total) * 100) + '%' : '0%';
+        if (el.hasAttribute('data-hide-empty')) el.hidden = done === 0;
+      });
+
+      document.querySelectorAll<HTMLAnchorElement>('[data-continue]').forEach((a) => {
+        const scope = a.dataset.continue;
+        const chapters = course.filter((c) => scope === 'all' || c.s === scope);
+        if (!chapters.some((c) => isDone(c.i))) return; // keep the "Start" wording
+        const next = chapters.find((c) => !isDone(c.i));
+        if (next) {
+          a.href = `/${next.i}/`;
+          a.textContent = `Continue: chapter ${next.n}`;
+          a.title = next.t;
+        } else {
+          a.href = a.dataset.doneHref || '/curriculum/';
+          a.textContent = a.dataset.doneLabel || 'All live chapters done';
+          a.removeAttribute('title');
+        }
+      });
+    }
+
+    document.querySelectorAll<HTMLButtonElement>('[data-mark-done]').forEach((btn) => {
+      const id = btn.dataset.markDone || '';
+      const label = btn.querySelector<HTMLElement>('[data-finish-label]');
+      const msg = btn.parentElement?.querySelector<HTMLElement>('[data-finish-msg]');
+      btn.hidden = false;
+      const paint = () => {
+        const on = isDone(id);
+        btn.classList.toggle('is-done', on);
+        if (on) btn.classList.remove('is-ready');
+        btn.setAttribute('aria-pressed', String(on));
+        if (label) label.textContent = on ? 'Done. Marked as finished' : 'Mark chapter as done';
+        if (!msg) return;
+        if (!on) { msg.textContent = ''; return; }
+        const mod = list(btn, 'moduleIds');
+        const lvl = list(btn, 'levelIds');
+        const lvlDone = lvl.filter(isDone).length;
+        const levelName = btn.dataset.levelName || 'this level';
+        if (lvl.length && lvlDone === lvl.length) {
+          msg.innerHTML = `<strong>Level complete.</strong> You have finished every live chapter in ${esc(levelName)}.`;
+        } else if (mod.length && mod.every(isDone)) {
+          msg.innerHTML = `<strong>Module complete.</strong> That finishes ${esc(btn.dataset.moduleLabel || 'this module')}.`;
+        } else {
+          msg.textContent = `Saved in this browser. ${lvlDone} of ${lvl.length} chapters in ${levelName} done.`;
+        }
+      };
+      btn.addEventListener('click', () => {
+        if (isDone(id)) delete store.done[id];
+        else store.done[id] = Date.now();
+        write(store);
+        paint();
+        refresh();
+      });
+      paint();
+    });
+
+    // Self-check: count the answers opened; nudge the finish button when all are seen.
+    document.querySelectorAll<HTMLElement>('[data-selfcheck]').forEach((box) => {
+      const items = Array.from(box.querySelectorAll<HTMLDetailsElement>('details'));
+      const count = box.querySelector<HTMLElement>('[data-selfcheck-count]');
+      const opened = new Set<number>();
+      items.forEach((d, i) => d.addEventListener('toggle', () => {
+        if (!d.open) return;
+        opened.add(i);
+        const all = opened.size === items.length;
+        if (count) count.textContent = all ? `All ${items.length} checked` : `${opened.size} of ${items.length} checked`;
+        if (all) {
+          box.classList.add('is-complete');
+          document.querySelectorAll('[data-mark-done]').forEach((b) => { if (!b.classList.contains('is-done')) b.classList.add('is-ready'); });
+        }
+      }));
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-progress-reset]').forEach((b) => b.addEventListener('click', () => {
+      if (!confirm('Clear the chapters you have marked as done in this browser?')) return;
+      store = { done: {} };
+      write(store);
+      refresh();
+    }));
+
+    window.addEventListener('storage', (e) => { if (e.key === KEY) { store = read(); refresh(); } });
+    refresh();
+  })();
+
+  // Glossary: remember which cards this browser has opened; filter the index.
+  (function () {
+    const KEY = 'bs_gloss';
+    let seen = new Set<string>();
+    try { seen = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch (e) {}
+    const here = document.querySelector<HTMLElement>('[data-gloss-seen]');
+    if (here && here.dataset.glossSeen) {
+      seen.add(here.dataset.glossSeen);
+      try { localStorage.setItem(KEY, JSON.stringify(Array.from(seen))); } catch (e) {}
+    }
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-gloss-term]'));
+    cards.forEach((el) => el.classList.toggle('is-seen', seen.has(el.dataset.glossTerm || '')));
+    const gp = document.querySelector<HTMLElement>('[data-gloss-progress]');
+    if (gp) {
+      const n = cards.filter((el) => seen.has(el.dataset.glossTerm || '')).length;
+      if (n) gp.textContent = `You have opened ${n} of ${cards.length} terms`;
+    }
+    const filter = document.querySelector<HTMLInputElement>('[data-gloss-filter]');
+    if (filter) filter.addEventListener('input', () => {
+      const q = filter.value.trim().toLowerCase();
+      let shown = 0;
+      cards.forEach((el) => {
+        const hit = !q || (el.dataset.search || '').includes(q);
+        el.hidden = !hit;
+        if (hit) shown++;
+      });
+      document.querySelectorAll<HTMLElement>('.gloss-group').forEach((g) => { g.hidden = !g.querySelector('[data-gloss-term]:not([hidden])'); });
+      const empty = document.querySelector<HTMLElement>('[data-gloss-empty]');
+      if (empty) empty.hidden = shown > 0;
+    });
+  })();
+</script>

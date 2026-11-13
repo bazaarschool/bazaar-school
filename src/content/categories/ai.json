@@ -1,0 +1,10 @@
+{
+  "name": "Bazaar AI",
+  "slug": "ai",
+  "kind": "feed",
+  "short": "AI",
+  "tagline": "What the machines can and cannot do for your money.",
+  "description": "Using AI tools to research companies faster, what SEBI allows retail algo traders to do, and the honest limits of asking a chatbot which stock to buy.",
+  "image": "/images/sections/ai.jpg",
+  "order": 5
+}

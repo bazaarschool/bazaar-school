@@ -1,0 +1,18 @@
+<section class="subscribe" aria-labelledby="subscribe-title">
+  <div class="container subscribe__inner">
+    <div>
+      <p class="eyebrow eyebrow--chalk">The Monday lesson</p>
+      <h2 id="subscribe-title">One lesson a week, in order.</h2>
+      <p>Every Monday, the next lesson in your inbox plus one market story worth your tea break. No stock tips, no spam, unsubscribe any time.</p>
+    </div>
+    <form name="newsletter" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/thank-you/">
+      <input type="hidden" name="form-name" value="newsletter" />
+      <p hidden><label>Leave this empty if you are human: <input name="bot-field" /></label></p>
+      <div class="subscribe__form">
+        <input type="email" name="email" required placeholder="you@example.com" aria-label="Email address" class="subscribe__input" />
+        <button type="submit" class="btn btn--primary">Subscribe</button>
+      </div>
+      <small>Free. We only email on Mondays.</small>
+    </form>
+  </div>
+</section>
