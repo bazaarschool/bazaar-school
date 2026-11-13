@@ -1,9 +1,11 @@
 # Decap CMS configuration: the browser-based editor at /admin/
-# Auth + publishing run through Netlify (enable Identity + Git Gateway on your site).
+# Log in with the GitHub account that owns the repository. Netlify handles the
+# GitHub sign-in: Project configuration > Security > OAuth > Install provider > GitHub.
+# (Git Gateway is deprecated on Netlify, so this site does not use it.)
 backend:
-  name: git-gateway
-  branch: main
+  name: github
   repo: bazaarschool/bazaar-school
+  branch: main
 
 # Uploaded images are committed here and referenced from the site root.
 media_folder: "public/uploads"
@@ -11,7 +13,7 @@ public_folder: "/uploads"
 
 site_url: https://bazaarschool.com
 display_url: https://bazaarschool.com
-logo_url: https://bazaarschool.com/apple-touch-icon.png
+logo_url: /apple-touch-icon.png
 
 collections:
   - name: "blog"

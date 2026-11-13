@@ -70,22 +70,6 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <script is:inline>
       (function () { var t = localStorage.getItem('bs_theme') || 'light'; document.documentElement.setAttribute('data-theme', t); })();
     </script>
-    <!-- Netlify Identity: only loads when arriving from an invite/recovery email, then sends you to the editor -->
-    <script is:inline>
-      (function () {
-        if (!/\b(invite_token|recovery_token|confirmation_token|error=access_denied)\b/.test(location.hash)) return;
-        var s = document.createElement('script');
-        s.src = 'https://identity.netlify.com/v1/netlify-identity-widget.js';
-        s.onload = function () {
-          if (window.netlifyIdentity) {
-            window.netlifyIdentity.on('init', function (user) {
-              if (!user) { window.netlifyIdentity.on('login', function () { document.location.href = '/admin/'; }); }
-            });
-          }
-        };
-        document.head.appendChild(s);
-      })();
-    </script>
     {ld.map((obj) => <script type="application/ld+json" is:inline set:html={JSON.stringify(obj)} />)}
     {ADS.adsenseClient && (
       <script

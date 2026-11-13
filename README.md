@@ -110,4 +110,4 @@ Unique title and description per page, canonical URLs, Open Graph and Twitter ca
 
 ## Deploying
 
-Push to the `main` branch of the GitHub repository connected to Netlify and the site rebuilds. `netlify.toml` already carries the build command, publish folder, Node version and security headers. The CMS needs Netlify Identity and Git Gateway switched on once; the checklist walks through it.
+Push to the `main` branch of the GitHub repository connected to Netlify and the site rebuilds. `netlify.toml` already carries the build command, publish folder, Node version and security headers. The CMS signs in with GitHub through Netlify's GitHub OAuth provider, which section 4 of the checklist sets up once. It does not use Netlify Identity or the deprecated Git Gateway.

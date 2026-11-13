@@ -26,46 +26,57 @@ npm run dev
 
 Visit http://localhost:4323. Click through the five sections, open a lesson, try the search (press `/`), toggle dark mode with the round button bottom right. Stop the server with Ctrl+C when done.
 
-## 2. Put the code on GitHub (10 minutes)
+## 2. Code on GitHub (done)
 
-1. On github.com, create a new, empty repository. Suggested name: `bazaarschool`. Private is fine; Netlify can read private repos.
-2. Back in the terminal, in this folder:
+The code lives at github.com/bazaarschool/bazaar-school on the `main` branch. Edits made through the CMS are committed there for you. For edits made on your computer, publish them with:
 
 ```bash
 git add -A
 ```
 
 ```bash
-git commit -m "Bazaar School: initial site"
+git commit -m "Describe the change"
 ```
 
 ```bash
-git remote add origin https://github.com/bazaarschool/bazaar-school.git
+git push
 ```
+
+If you have also published from the CMS, fetch those commits before working locally:
 
 ```bash
-git push -u origin main
+git pull
 ```
-
-3. Open `public/admin/config.yml` and change the line `repo: bazaarschool/bazaar-school` to your real `owner/repo`. Commit and push again. The CMS will not log in until this matches.
 
 ## 3. Deploy on Netlify (15 minutes)
 
-1. Sign in at netlify.com (the same account as BLOGACIOUS is fine; sites are separate).
-2. Add new site → Import an existing project → GitHub → choose the `bazaarschool` repository.
-3. Build command `npm run build`, publish directory `dist`. These are already in `netlify.toml`, so just confirm and deploy. The first build takes about a minute and gives you a `something.netlify.app` address. Check it.
-4. Site configuration → Domain management → Add a domain → `bazaarschool.com`, and add `www.bazaarschool.com` as an alias.
-5. Point the domain at Netlify. The simplest route: in Netlify choose "Set up Netlify DNS", copy the four nameservers it shows, and paste them into the nameserver settings at the registrar where you bought bazaarschool.com. The alternative is to leave the registrar's DNS and add an A record for `@` pointing to Netlify's load balancer address (shown in the same screen) plus a CNAME for `www` pointing to your `something.netlify.app`. Either way, propagation takes anything from ten minutes to a day.
-6. Once the domain shows "Netlify DNS" or "DNS verified", HTTPS is provisioned automatically. Do not skip the wait; the CMS and share images need the real domain.
-7. Forms: open Site → Forms. The `newsletter` form is detected on the first deploy. Turn on email notifications for new submissions so subscribers reach your inbox until you connect a proper email tool.
+Before you start, sign in to github.com as **bazaarschool** in the same browser, so Netlify sees the right GitHub account.
+
+1. Sign in at app.netlify.com. The same Netlify account as BLOGACIOUS is fine; each project is separate.
+2. On the **Projects** page choose **Add new project**, then **Import an existing project**, then **GitHub**.
+3. If GitHub asks you to authorise or install the Netlify app, pick the **bazaarschool** account and give it access to **Only select repositories: bazaar-school**. If the repository is missing from Netlify's list, use the link on that screen to configure the Netlify app on GitHub.
+4. Pick **bazaar-school**. Netlify reads `netlify.toml`, so the build command (`npm run build`) and publish directory (`dist`) fill themselves in. Set the project name to `bazaarschool` if it is free; that gives you `bazaarschool.netlify.app`.
+5. Click **Deploy**. The first build takes one to two minutes. When it says Published, open the `.netlify.app` address and click around.
+6. Forms: Netlify switches form detection off for new projects. Go to **Project configuration > Forms** and enable form detection, then **Deploys > Trigger deploy > Deploy project** so the newsletter form is picked up. After that deploy the Forms page lists `newsletter`. Turn on email notifications for form submissions (Project configuration > Notifications) so subscribers reach your inbox until you connect a proper email tool.
+
+## 3b. Connect bazaarschool.com (10 minutes, then a wait)
+
+1. **Domain management > Add a domain** and enter `bazaarschool.com`. Netlify adds `www.bazaarschool.com` with it.
+2. Point the domain at Netlify in one of two ways. **Netlify DNS** is simplest: copy the four nameservers Netlify shows and paste them into the nameserver settings at the registrar where you bought the domain. Or **keep your registrar's DNS** and add the records Netlify shows on the same screen, usually an A record for `@` and a CNAME for `www` pointing to `bazaarschool.netlify.app`.
+3. DNS changes take from ten minutes to a day. When the domain shows as verified, Netlify issues the HTTPS certificate by itself. If it hasn't after an hour, use **HTTPS > Verify DNS configuration**.
 
 ## 4. Switch on the CMS login (10 minutes)
 
-1. Netlify → Site configuration → Identity → Enable Identity.
-2. Under Registration, choose **Invite only**. Otherwise anyone can create a login.
-3. Identity → Services → **Enable Git Gateway**. This is what lets the editor commit to GitHub on your behalf.
-4. Identity → Invite users → your email. Open the invitation email; the link lands on bazaarschool.com, which forwards you to `/admin/` to set a password.
-5. From then on: https://bazaarschool.com/admin/ → log in → Lessons & articles → New. Publishing commits a Markdown file to GitHub, Netlify rebuilds, and the page is live in about a minute.
+The editor at `/admin/` signs you in with GitHub. Netlify handles that sign-in once you give it the keys of a small GitHub "OAuth app". The older Netlify Identity plus Git Gateway method is deprecated on Netlify, so this site doesn't use it.
+
+1. On GitHub, signed in as bazaarschool, open **Settings > Developer settings > OAuth Apps > New OAuth App** (github.com/settings/developers). If bazaarschool is an organisation, use the organisation's own Settings > Developer settings instead. Fill in:
+   - Application name: `Bazaar School CMS`
+   - Homepage URL: `https://bazaarschool.com` (or the `.netlify.app` address until the domain works)
+   - Authorization callback URL: `https://api.netlify.com/auth/done`, exactly
+2. Click **Register application**. Copy the **Client ID**, then click **Generate a new client secret** and copy the secret. Paste both only into Netlify in the next step; never email or chat them to anyone.
+3. In Netlify: **Project configuration > Security > OAuth > Install provider > GitHub**. Paste the Client ID and secret, and save.
+4. Open `/admin/` on your site and click **Login with GitHub**. Approve the pop-up and the editor opens.
+5. From then on: Lessons & articles > New. Publishing commits a Markdown file to GitHub, Netlify rebuilds, and the page is live in about a minute. Anyone you want as an editor needs write access to the GitHub repository.
 
 ## 5. Measurement (20 minutes, can wait a week)
 
