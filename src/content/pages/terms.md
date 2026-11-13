@@ -1,6 +1,6 @@
 ---
 title: Terms of Use
-description: The terms that apply when you use Bazaar School.
+description: "The terms for using Bazaar School: our lessons are education, not investment advice, plus accuracy, copyright, affiliate links and how to reach us."
 updated: 2026-11-12
 ---
 

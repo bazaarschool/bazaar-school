@@ -1,6 +1,8 @@
 ---
 title: "Can ChatGPT pick stocks? What AI is actually good for in investing, and what it is not"
 excerpt: "Ask a chatbot which share to buy and it will answer, confidently and badly. What language models actually do, why their numbers cannot be trusted without a source, where they genuinely save hours, and what SEBI's rules say about advice from anyone, human or machine."
+metaTitle: "Can ChatGPT pick stocks? What AI is good for"
+metaDescription: "Ask a chatbot which share to buy and it answers, confidently and badly. Where AI saves you hours, why its numbers need a source, and what SEBI says."
 category: "Bazaar AI"
 tags: ["AI", "ChatGPT", "Research", "SEBI"]
 author: "Bazaar School Team"

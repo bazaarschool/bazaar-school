@@ -1,6 +1,8 @@
 ---
 title: "How to read an annual report without falling asleep"
 excerpt: "A listed company's annual report runs 200 to 400 pages, and most of it is there to be skipped. The order to read it in, the six pages that matter, and the warning signs that sat in Satyam's reports before anyone looked."
+metaTitle: "How to read an annual report: the six pages that matter"
+metaDescription: "Most of a 300-page annual report can be skipped. The order to read one in, the six pages that matter, and the warning signs that sat in Satyam's reports."
 category: "Bazaar Intermediate"
 lesson: 1
 module: "intermediate-1"

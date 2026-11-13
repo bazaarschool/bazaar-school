@@ -1,6 +1,8 @@
 ---
 title: "P/E, P/B and ROE: three ratios that do most of the work"
 excerpt: "You do not need forty ratios. You need three, the arithmetic that connects them, and a list of the ways each one lies. With a worked example and the questions to ask before trusting any number an app shows you."
+metaTitle: "P/E, P/B and ROE explained with an example"
+metaDescription: "The three ratios that do most of the work in valuing a company, the arithmetic that links them, a worked example, and the ways each one can mislead you."
 category: "Bazaar Intermediate"
 lesson: 2
 module: "intermediate-1"

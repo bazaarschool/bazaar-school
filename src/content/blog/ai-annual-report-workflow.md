@@ -1,6 +1,8 @@
 ---
 title: "How to read an annual report in 20 minutes with AI, and not get fooled by it"
 excerpt: "A step-by-step workflow for letting a language model do the page-turning on a 300-page annual report: the prompts, the extraction table, the verification pass that catches invented numbers, and the questions a model cannot answer for you."
+metaTitle: "How to read an annual report with AI"
+metaDescription: "A step-by-step AI workflow for a 300-page annual report: the prompts, the check that catches invented numbers, and the questions AI can't answer."
 category: "Bazaar AI"
 tags: ["AI", "Annual report", "Workflow", "Research"]
 author: "Bazaar School Team"

@@ -1,6 +1,8 @@
 ---
 title: "From a banyan tree to Dalal Street: how Bombay's brokers built Asia's oldest exchange"
 excerpt: "In the 1850s a few dozen men traded shares under a banyan tree outside Bombay's Town Hall. One cotton boom, one spectacular bust and several evictions later, they had a street, a rulebook and the institution that became the BSE."
+metaTitle: "BSE history: from a banyan tree to Dalal Street"
+metaDescription: "In the 1850s Bombay's brokers traded under a banyan tree. A cotton boom, a bust and several evictions later, they formed what became the BSE."
 category: "Bazaar Stories"
 tags: ["Stories", "BSE", "History", "Mumbai"]
 author: "Bazaar School Team"

@@ -103,7 +103,7 @@ The editor at `/admin/` signs you in with GitHub. Netlify handles that sign-in o
 
 ## 8. The weekly routine
 
-1. Write the next chapter in the CMS. Courses: pick its module, set the chapter number inside that module, add two or three "You can now" lines and three self-check questions, then delete the title from the module's planned list. Numbering, progress bars, previous/next links and the curriculum update themselves. If the chapter uses a new market word, add a glossary card for it too.
+1. Write the next chapter in the CMS. Courses: pick its module, set the chapter number inside that module, add two or three "You can now" lines and three self-check questions, then delete the title from the module's planned list. Numbering, progress bars, previous/next links and the curriculum update themselves. If the chapter uses a new market word, add a glossary card for it too. Fill in **Search title** (44 characters or fewer keeps the site name on the end) and **Search description** (155 at most): they are what Google shows, so make them say plainly what the chapter answers.
 2. Cover image: either upload a photo in the CMS, or leave the default path and run `npm run covers` locally before pushing (the script draws a cover for any article that lacks one).
 3. Read it aloud once. Cut anything you would not say to a friend. No em dashes, no "let's dive in", no stock tips.
 4. Publish. Check the live page on your phone.

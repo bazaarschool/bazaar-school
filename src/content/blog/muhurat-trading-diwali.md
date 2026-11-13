@@ -1,6 +1,8 @@
 ---
 title: "Muhurat trading: why Dalal Street opens for one hour on Diwali"
 excerpt: "Every Diwali the exchanges open for a single ceremonial session, brokers worship their account books, and a new Samvat year begins. Where the ritual comes from, what people actually do in that hour, and what the record says about buying on it."
+metaTitle: "What is Muhurat trading on Diwali?"
+metaDescription: "Every Diwali the exchanges open for one hour and a new Samvat year begins. Where the ritual comes from, what traders do, and what the record shows."
 category: "Bazaar Stories"
 tags: ["Stories", "Diwali", "Muhurat", "Tradition"]
 author: "Bazaar School Team"

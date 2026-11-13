@@ -1,6 +1,8 @@
 ---
 title: "Capital gains tax on Indian shares: STCG, LTCG and the rules after July 2024"
 excerpt: "The holding period that changes your rate, the 1.25 lakh exemption, what happened to buybacks, how intraday and F&O are taxed differently, and the set-off rules that let a bad year shrink a good year's bill. With worked numbers."
+metaTitle: "Capital gains tax on shares: STCG and LTCG"
+metaDescription: "The holding period that sets your rate, the 1.25 lakh exemption, how buybacks, intraday and F&O are taxed, and the set-off rules. With worked numbers."
 category: "Bazaar Advanced"
 lesson: 1
 module: "advanced-3"

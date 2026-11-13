@@ -1,6 +1,8 @@
 ---
 title: "How to open a demat account in India, and what happens after you tap Buy"
 excerpt: "The three accounts you need, the documents, what a broker charges beyond \"zero brokerage\", and the one-day journey a share takes from the exchange to your name. Read this before you open anything."
+metaTitle: "How to open a demat account in India"
+metaDescription: "The three accounts you need, the documents, the charges behind zero brokerage, and how a share reaches your demat account a day after you buy."
 category: "Bazaar Basics"
 lesson: 1
 module: "basics-2"

@@ -59,8 +59,10 @@ Through the CMS (after launch): `/admin/` → Lessons & articles → New. Or by 
 
 ```yaml
 ---
-title: "How to open a demat account in India"
-excerpt: "One or two sentences. Shown under the title and used as the search description."
+title: "How to open a demat account in India, and what happens after you tap Buy"
+excerpt: "One or two sentences. Shown under the title, and in Google when metaDescription is empty."
+metaTitle: "How to open a demat account in India"   # optional: what Google shows; up to 44 characters keeps "| Bazaar School"
+metaDescription: "The three accounts you need, the documents, and how a share reaches you a day after you buy."   # optional: 155 characters at most
 category: "Bazaar Basics"        # exact section name
 module: "basics-2"               # courses only: a module ID from src/content/modules
 lesson: 1                        # courses only: chapter number inside the module (shown as 2.1)
@@ -81,6 +83,8 @@ Body in Markdown. Tables, lists, blockquotes and code blocks are styled.
 ```
 
 When you publish a chapter that was listed as planned, delete its title from the module's `planned` list (an exact title match is hidden automatically).
+
+Search title and description: Google shows about 60 characters of a title and about 155 of a description. The headline and excerpt can be as long as the writing needs, because `metaTitle` and `metaDescription` (CMS: Search title, Search description) are what Google sees. Leave them empty and nothing breaks: a title that would pass 60 characters drops the "| Bazaar School" ending, and a description over 160 characters is cut after its last full sentence, or at a word break. Link previews on WhatsApp, X, Facebook and LinkedIn always use the full headline.
 
 Adding a glossary term: create `src/content/glossary/<id>.md` (or use CMS > Glossary) with `title`, `short` (one sentence), `aliases` (abbreviations and plurals to link), `related`, and `lesson` (the chapter that teaches it). Set `autolink: false` for everyday words such as "share".
 
@@ -106,8 +110,8 @@ All in `src/data/settings.json` (or CMS → Site settings):
 
 ## SEO baked into the build
 
-Unique title and description per page, canonical URLs, Open Graph and Twitter cards with a real image, JSON-LD (Organization and WebSite on the home page, Article plus BreadcrumbList on articles, CollectionPage with an ItemList on section pages), `sitemap-index.xml`, and `robots.txt`. The domain is already set in `astro.config.mjs`.
+Unique title and description per page, kept within what Google displays (see "Search title and description" above), canonical URLs, Open Graph and Twitter cards with a real image, JSON-LD (Organization and WebSite on the home page, Article plus BreadcrumbList on articles, CollectionPage with an ItemList on section pages), `sitemap-index.xml`, and `robots.txt`. The domain is already set in `astro.config.mjs`.
 
 ## Deploying
 
-Push to the `main` branch of the GitHub repository connected to Netlify and the site rebuilds. `netlify.toml` already carries the build command, publish folder, Node version and security headers. The CMS signs in with GitHub through Netlify's GitHub OAuth provider, which section 4 of the checklist sets up once. It does not use Netlify Identity or the deprecated Git Gateway.
+Push to the `main` branch of the GitHub repository connected to Netlify and the site rebuilds. `netlify.toml` already carries the build command, publish folder, Node version, security headers, a redirect from `bazaarschool.netlify.app` to the real domain, and year-long browser caching for the fingerprinted CSS and JavaScript in `/_astro/`. The CMS signs in with GitHub through Netlify's GitHub OAuth provider, which section 4 of the checklist sets up once. It does not use Netlify Identity or the deprecated Git Gateway.

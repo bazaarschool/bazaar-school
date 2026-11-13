@@ -28,7 +28,7 @@ collections:
     sortable_fields: ["date", "title", "category", "module", "lesson"]
     fields:
       - { label: "Title", name: "title", widget: "string" }
-      - { label: "Excerpt (shows under the title and as the search description)", name: "excerpt", widget: "text" }
+      - { label: "Excerpt (shows under the title; also the search description when Search description is empty)", name: "excerpt", widget: "text" }
       - label: "Section"
         name: "category"
         widget: "relation"
@@ -75,8 +75,8 @@ collections:
       - { label: "Read time", name: "readTime", widget: "string", default: "6 min" }
       - { label: "Featured", name: "featured", widget: "boolean", default: false, required: false }
       - { label: "Draft (hide from the live site)", name: "draft", widget: "boolean", default: false }
-      - { label: "SEO title (optional, overrides the headline in search)", name: "metaTitle", widget: "string", required: false }
-      - { label: "SEO description (optional, overrides the excerpt in search)", name: "metaDescription", widget: "text", required: false }
+      - { label: "Search title (optional)", name: "metaTitle", widget: "string", required: false, hint: "What Google shows instead of the headline. Up to 44 characters keeps the Bazaar School name on the end; 60 at most. Leave empty to use the headline.", pattern: ['^.{0,60}$', 'Keep the search title to 60 characters or fewer'] }
+      - { label: "Search description (optional)", name: "metaDescription", widget: "text", required: false, hint: "One or two sentences, 155 characters at most. Leave empty to use the excerpt, which is then cut to fit.", pattern: ['^[\s\S]{0,155}$', 'Keep the search description to 155 characters or fewer'] }
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "categories"

@@ -10,6 +10,8 @@ import Analytics from '../components/Analytics.astro';
 
 interface Props {
   title: string;
+  /** Title for link previews on WhatsApp, X, Facebook and LinkedIn; defaults to the page title. */
+  shareTitle?: string;
   description?: string;
   image?: string;
   type?: 'website' | 'article';
@@ -20,6 +22,7 @@ interface Props {
 }
 const {
   title,
+  shareTitle,
   description = SITE.tagline,
   image = '/images/og-default.jpg',
   type = 'website',
@@ -31,7 +34,23 @@ const {
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = image ? new URL(image, Astro.site).href : undefined;
-const fullTitle = title === SITE.name ? `${SITE.name}: learn the Indian stock market in order` : `${title} | ${SITE.name}`;
+// Google shows about 60 characters of a title, so a long title drops the "| Bazaar School" ending.
+const branded = `${title} | ${SITE.name}`;
+const fullTitle = title === SITE.name ? `${SITE.name}: learn the Indian stock market in order` : branded.length <= 60 ? branded : title;
+const socialTitle = shareTitle || fullTitle;
+
+// Google shows about 155 characters of a description. A longer one is cut after the
+// last full sentence that fits, or else at a word break with an ellipsis.
+function clip(text: string, max: number): string {
+  const t = text.replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  const head = t.slice(0, max);
+  const stop = Math.max(head.lastIndexOf('. '), head.lastIndexOf('? '), head.lastIndexOf('! '));
+  if (stop >= max / 2) return head.slice(0, stop + 1);
+  const space = head.lastIndexOf(' ', max - 2);
+  return head.slice(0, space > 0 ? space : max - 1).replace(/[\s,;:.]+$/, '') + '…';
+}
+const metaDescription = clip(description, 160);
 const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
 <!doctype html>
@@ -40,7 +59,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{fullTitle}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
@@ -52,15 +71,15 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={SITE.name} />
-    <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={socialTitle} />
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content="en_IN" />
     {ogImage && <meta property="og:image" content={ogImage} />}
     <meta name="twitter:card" content="summary_large_image" />
     {SITE.twitter && <meta name="twitter:site" content={SITE.twitter} />}
-    <meta name="twitter:title" content={fullTitle} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:title" content={socialTitle} />
+    <meta name="twitter:description" content={metaDescription} />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -1,6 +1,8 @@
 ---
 title: "Position sizing and risk: the maths that keeps you in the game"
 excerpt: "Most investing books spend 300 pages on what to buy and three on how much. This lesson reverses the ratio: the one percent rule, the arithmetic of drawdowns, why leverage is a different animal, and a worksheet you can fill in tonight."
+metaTitle: "Position sizing and the one percent rule"
+metaDescription: "How much to put in each trade: the one percent rule, drawdown maths, why leverage changes everything, and a worksheet you can fill in tonight."
 category: "Bazaar Advanced"
 lesson: 1
 module: "advanced-2"

@@ -1,6 +1,8 @@
 ---
 title: "Futures and options in India: how F&O actually works, and why nine in ten retail traders lose"
 excerpt: "A plain explanation of futures, calls and puts using Nifty numbers, what SEBI's 2024 and 2025 rule changes did to the market, and the regulator's own study of what happened to more than a crore of individual traders."
+metaTitle: "Futures and options explained: how F&O works"
+metaDescription: "Futures, calls and puts explained with Nifty numbers, what SEBI's 2024 and 2025 rule changes did, and why nine in ten retail F&O traders lose money."
 category: "Bazaar Advanced"
 lesson: 1
 module: "advanced-1"

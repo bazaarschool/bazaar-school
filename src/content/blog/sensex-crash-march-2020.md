@@ -1,6 +1,8 @@
 ---
 title: "The day the Sensex fell 13 percent: inside 23 March 2020, and the ten months after"
 excerpt: "The circuit breaker tripped before ten in the morning, the index closed with the biggest percentage fall in its history, and a national lockdown was announced the next evening. What the day felt like, what the people who sold did next, and why the recovery is the part worth studying."
+metaTitle: "The March 2020 Sensex crash and the recovery"
+metaDescription: "On 23 March 2020 the Sensex fell 13 percent in a day. What it felt like, what the sellers did next, and why the recovery is the part worth studying."
 category: "Bazaar Stories"
 tags: ["Stories", "Crash", "Covid", "Circuit breaker"]
 author: "Bazaar School Team"

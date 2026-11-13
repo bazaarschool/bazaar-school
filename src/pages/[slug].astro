@@ -100,7 +100,7 @@ const jsonLd: object[] = [
   },
 ];
 ---
-<Base title={a.metaTitle || a.title} description={a.metaDescription || a.excerpt} image={a.imageWide || a.image} type="article" active={section?.name} level={section?.slug} jsonLd={jsonLd}>
+<Base title={a.metaTitle || a.title} shareTitle={a.title} description={a.metaDescription || a.excerpt} image={a.imageWide || a.image} type="article" active={section?.name} level={section?.slug} jsonLd={jsonLd}>
   <article class="post" data-level={section?.slug}>
     <header class="container post__head">
       <nav class="crumbs" aria-label="Breadcrumb">

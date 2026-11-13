@@ -1,6 +1,8 @@
 ---
 title: "Candlesticks, volume and trend: reading a price chart for the first time"
 excerpt: "A chart is a record of what other people paid, nothing more. How to read one candle, why volume tells you more than most lines, what a trend is, and SEBI's own numbers on how intraday traders actually do."
+metaTitle: "How to read candlestick charts for beginners"
+metaDescription: "How to read one candle, why volume tells you more than most indicators, what a trend really is, and SEBI's own numbers on how intraday traders do."
 category: "Bazaar Intermediate"
 lesson: 1
 module: "intermediate-3"

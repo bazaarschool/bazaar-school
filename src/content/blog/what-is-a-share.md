@@ -1,6 +1,8 @@
 ---
 title: "What a share actually is, and what you own when you buy one"
 excerpt: "Before Sensex, demat accounts or candlesticks, there is one idea everything else rests on: a share is a slice of a real business. Here is what that slice gives you, what it does not, and why its price moves."
+metaTitle: "What is a share? A plain-English explanation"
+metaDescription: "A share is a slice of a real business. What owning one gives you, what it does not, face value versus market price, and why share prices move."
 category: "Bazaar Basics"
 lesson: 1
 module: "basics-1"

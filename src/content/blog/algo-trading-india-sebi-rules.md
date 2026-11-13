@@ -1,6 +1,8 @@
 ---
 title: "Algo trading in India: what SEBI now lets a retail investor do"
 excerpt: "Until 2025, automating your own trades through a broker's API lived in a grey zone. SEBI's February 2025 framework made it legal with conditions: registered algos, an order-rate threshold, broker accountability, and a line between strategies you can see inside and ones you cannot."
+metaTitle: "SEBI algo trading rules for retail investors"
+metaDescription: "How SEBI's 2025 framework lets you automate your own trades through a broker's API: registered algos, an order-rate threshold and broker accountability."
 category: "Bazaar AI"
 tags: ["AI", "Algo trading", "SEBI", "APIs"]
 author: "Bazaar School Team"

@@ -1,6 +1,8 @@
 ---
 title: "Sensex and Nifty: what the two numbers on the news actually measure"
 excerpt: "Every evening someone announces that the Sensex rose 400 points. Points of what? What the two big indices track, how they are built, why one heavy stock can drag them, and why you cannot buy them directly but can buy something very close."
+metaTitle: "What are Sensex and Nifty? Explained simply"
+metaDescription: "What the Sensex and Nifty track, how they are built, why one heavy stock can drag them, and how an index fund lets you buy something very close."
 category: "Bazaar Basics"
 lesson: 2
 module: "basics-1"
