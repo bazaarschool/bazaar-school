@@ -56,8 +56,8 @@ Before you start, sign in to github.com as **bazaarschool** in the same browser,
 2. On the **Projects** page choose **Add new project**, then **Import an existing project**, then **GitHub**.
 3. If GitHub asks you to authorise or install the Netlify app, pick the **bazaarschool** account and give it access to **Only select repositories: bazaar-school**. If the repository is missing from Netlify's list, use the link on that screen to configure the Netlify app on GitHub.
 4. Pick **bazaar-school**. Netlify reads `netlify.toml`, so the build command (`npm run build`) and publish directory (`dist`) fill themselves in. Set the project name to `bazaarschool` if it is free; that gives you `bazaarschool.netlify.app`.
-5. Click **Deploy**. The first build takes one to two minutes. When it says Published, open the `.netlify.app` address and click around.
-6. Forms: Netlify switches form detection off for new projects. Go to **Project configuration > Forms** and enable form detection, then **Deploys > Trigger deploy > Deploy project** so the newsletter form is picked up. After that deploy the Forms page lists `newsletter`. Turn on email notifications for form submissions (Project configuration > Notifications) so subscribers reach your inbox until you connect a proper email tool.
+5. Click **Deploy**. The first build takes one to two minutes. When it says Published, open the `.netlify.app` address and click around. If it asks you to sign in to Netlify, the project is private: go to **Project configuration > General > Visitor access > Project visibility**, set production deploys to **Public** and save.
+6. Forms: Netlify switches form detection off for new projects. Go to **Project configuration > Forms** and enable form detection, then **Deploys > Trigger deploy > Deploy project** so the newsletter form is picked up. After that deploy the Forms page lists `newsletter`. Then open **Forms > Submission notifications**, add an email notification for `newsletter` sent to `thebazarschool@gmail.com`, and click **Confirm** in the email Netlify sends to that address, so subscribers reach your inbox until you connect a proper email tool.
 
 ## 3b. Connect bazaarschool.com (10 minutes, then a wait)
 
@@ -81,7 +81,7 @@ The editor at `/admin/` signs you in with GitHub. Netlify handles that sign-in o
 ## 5. Measurement (20 minutes, can wait a week)
 
 1. Google Analytics: analytics.google.com → create a property for bazaarschool.com → Web data stream → copy the Measurement ID (`G-XXXXXXXXXX`). Paste it into CMS → Site settings → Google Analytics ID (or `src/data/settings.json`). Analytics loads only after a visitor accepts analytics cookies; that is intentional.
-2. Google Search Console: search.google.com/search-console → Add property → Domain → `bazaarschool.com`. Verify by adding the TXT record it gives you at Netlify DNS (or your registrar). Then Sitemaps → submit `https://bazaarschool.com/sitemap-index.xml`.
+2. Google Search Console: search.google.com/search-console → Add property → Domain → `bazaarschool.com`. Verify by adding the TXT record it gives you in Cloudflare (**DNS > Records > Add record**, type TXT, name `@`), and leave that record in place for good. Then Sitemaps → submit `https://bazaarschool.com/sitemap-index.xml`.
 3. Bing Webmaster Tools → import the site from Search Console. Two minutes, free traffic.
 
 ## 6. Money, in the order it becomes realistic
@@ -97,7 +97,7 @@ The editor at `/admin/` signs you in with GitHub. Netlify handles that sign-in o
 ## 7. Compliance you should keep an eye on
 
 - The site never recommends a security, and every article renders the disclaimer. Keep it that way; the SEBI research analyst and investment adviser regulations are why.
-- `hello@bazaarschool.com` is printed on the About, Disclaimer, Privacy and Terms pages. Create the mailbox (Zoho Mail's free tier, Google Workspace, or email forwarding at your registrar) before launch so those pages are not pointing at nothing.
+- The contact address, `thebazarschool@gmail.com`, is printed on the About, Disclaimer, Privacy and Terms pages and sits behind the Contact link in the footer. To change it, edit those four pages and CMS → Site settings → Contact email.
 - Have a professional read the privacy policy and terms once; they are starter templates and say so.
 - Facts: the starter lessons quote tax rates, SEBI rules, lot sizes and charges from memory of the published rules as of November 2026, not from a live check. Before launch, open each primary source (SEBI circular, exchange notice, Finance Act, your broker's charge sheet), confirm the figure, and reword the italic line at the end of the lesson to say you checked it. When a rule changes later (Budget day, SEBI circulars), update the lesson and set its "Updated on" date in the CMS.
 

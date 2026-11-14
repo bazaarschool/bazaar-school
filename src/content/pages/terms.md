@@ -36,4 +36,4 @@ We may update these terms from time to time. The date at the top shows the curre
 
 ## Contact
 
-Questions about these terms? Email [hello@bazaarschool.com](mailto:hello@bazaarschool.com).
+Questions about these terms? Email [thebazarschool@gmail.com](mailto:thebazarschool@gmail.com).

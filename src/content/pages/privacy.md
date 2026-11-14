@@ -37,4 +37,4 @@ The site is not directed at children under 18, and we do not knowingly collect t
 
 ## Contact
 
-Questions about this policy? Email [hello@bazaarschool.com](mailto:hello@bazaarschool.com).
+Questions about this policy? Email [thebazarschool@gmail.com](mailto:thebazarschool@gmail.com).

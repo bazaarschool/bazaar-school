@@ -36,4 +36,4 @@ We are not SEBI-registered investment advisers or research analysts. That is not
 
 ## Get in touch
 
-Corrections are the most useful email we receive. If a rule has changed, a number is stale or a lesson is unclear, write to [hello@bazaarschool.com](mailto:hello@bazaarschool.com).
+Corrections are the most useful email we receive. If a rule has changed, a number is stale or a lesson is unclear, write to [thebazarschool@gmail.com](mailto:thebazarschool@gmail.com).

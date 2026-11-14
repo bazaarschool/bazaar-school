@@ -37,4 +37,4 @@ While we try to be accurate, we make no warranty that the content is complete, c
 
 ## Questions
 
-Email [hello@bazaarschool.com](mailto:hello@bazaarschool.com).
+Email [thebazarschool@gmail.com](mailto:thebazarschool@gmail.com).
